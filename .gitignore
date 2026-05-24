@@ -67,3 +67,8 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Ignore settings files and NOT the gitignore
+.*
+!.gitignore
+!.gitmodules
