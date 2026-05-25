@@ -33,7 +33,15 @@ int main() {
 
     camera cam(vpInv, 800, 600);
 
+
+    auto start = std::chrono::high_resolution_clock::now();
+
     rayTrace(resoult, cam);
+
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms = end - start;
+    std::cout << "Rendering took: " << ms.count() << " ms\n";
 
     if (!resoultTexture.loadFromImage(resoult))
         std::cerr << "Failed to load resoult texture.\n";
