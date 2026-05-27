@@ -1,17 +1,15 @@
-#include "glm/common.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/quaternion_common.hpp"
 #include "glm/geometric.hpp"
 #include "glm/trigonometric.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 
-#include <cstdint>
-#include <glm/glm.hpp>
+#include "ray.hpp"
 
+#include <cstdint>
 #include <iostream>
 
 struct camera {
@@ -66,12 +64,7 @@ int main() {
     return 0;
 }
 
-struct ray {
-    glm::vec3 origin;
-    glm::vec3 direction;
-};
-
-ray genRay(uint32_t x, uint32_t y, const camera& cam) {
+rt::ray genRay(uint32_t x, uint32_t y, const camera& cam) {
     float ndcX = (x + 0.5f) / cam.width * 2 - 1;
     float ndcY = (y + 0.5f) / cam.height * 2 - 1;
 
@@ -84,13 +77,13 @@ ray genRay(uint32_t x, uint32_t y, const camera& cam) {
     nearWorld /= nearWorld.w;
     farWorld /= farWorld.w;
 
-    return ray(glm::vec3(nearWorld), glm::normalize(glm::vec3(farWorld) - glm::vec3(nearWorld)));
+    return rt::ray(glm::vec3(nearWorld), glm::normalize(glm::vec3(farWorld) - glm::vec3(nearWorld)));
 }
 
-bool raySphere(ray r, glm::vec3 center, float radius) {
-    glm::vec3 oc = r.origin - center;
-    float a = glm::dot(r.direction, r.direction);
-    float half_b = dot(oc, r.direction);
+bool raySphere(rt::ray r, glm::vec3 center, float radius) {
+    glm::vec3 oc = r.origin() - center;
+    float a = glm::dot(r.direction(), r.direction());
+    float half_b = dot(oc, r.direction());
     float c = dot(oc, oc) - radius * radius;
     return (half_b*half_b - a*c) >= 0;
 }
@@ -100,9 +93,9 @@ void rayTrace(sf::Image& resoultImage, camera cam) {
         for (unsigned int x = 0; x < 800; x++) {
             glm::vec3 resoult(0.0f);
 
-            ray r = genRay(x, y, cam);
+            rt::ray r = genRay(x, y, cam);
 
-            float skyVar = (glm::normalize(r.direction).y + 1) / 2;
+            float skyVar = (glm::normalize(r.direction()).y + 1) / 2;
             glm::vec3 skyColur(0.5f, 0.7f, 1.0f);
             glm::vec3 groundColur(1.0f);
 
