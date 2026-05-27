@@ -1,24 +1,14 @@
-#include "glm/ext/matrix_clip_space.hpp"
-#include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/geometric.hpp"
-#include "glm/trigonometric.hpp"
+#include <glm/glm.hpp>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 
 #include "ray.hpp"
+#include "camera.hpp"
 
-#include <cstdint>
 #include <iostream>
 
-struct camera {
-    glm::mat4 vpInv;
-    uint32_t width;
-    uint32_t height;
-};
-
-void rayTrace(sf::Image& resoult, camera cam);
+void rayTrace(sf::Image& resoult, rt::camera cam);
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Ray tracing in one weekend", sf::Style::Titlebar | sf::Style::Close);
@@ -26,13 +16,7 @@ int main() {
     sf::Image resoult({800, 600});
     sf::Texture resoultTexture;
 
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-    glm::mat4 proj = glm::perspective(glm::radians(60.0f), 800.0f/600.0f, 0.1f, 100.0f);
-    glm::mat4 vp = proj * view;
-    glm::mat4 vpInv = glm::inverse(vp);
-
-    camera cam(vpInv, 800, 600);
-
+    rt::camera cam(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), 800, 600, 60.0f);
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -64,22 +48,6 @@ int main() {
     return 0;
 }
 
-rt::ray genRay(uint32_t x, uint32_t y, const camera& cam) {
-    float ndcX = (x + 0.5f) / cam.width * 2 - 1;
-    float ndcY = (y + 0.5f) / cam.height * 2 - 1;
-
-    glm::vec4 nearClip = glm::vec4(ndcX, ndcY, -1.0f, 1.0f);
-    glm::vec4 farClip = glm::vec4(ndcX, ndcY, 1.0f, 1.0f);
-
-    glm::vec4 nearWorld = cam.vpInv * nearClip;
-    glm::vec4 farWorld = cam.vpInv * farClip;
-
-    nearWorld /= nearWorld.w;
-    farWorld /= farWorld.w;
-
-    return rt::ray(glm::vec3(nearWorld), glm::normalize(glm::vec3(farWorld) - glm::vec3(nearWorld)));
-}
-
 bool raySphere(rt::ray r, glm::vec3 center, float radius) {
     glm::vec3 oc = r.origin() - center;
     float a = glm::dot(r.direction(), r.direction());
@@ -88,12 +56,12 @@ bool raySphere(rt::ray r, glm::vec3 center, float radius) {
     return (half_b*half_b - a*c) >= 0;
 }
 
-void rayTrace(sf::Image& resoultImage, camera cam) {
-    for (unsigned int y = 0; y < 600; y++) {
-        for (unsigned int x = 0; x < 800; x++) {
+void rayTrace(sf::Image& resoultImage, rt::camera cam) {
+    for (unsigned int y = 0; y < cam.resolutionY(); y++) {
+        for (unsigned int x = 0; x < cam.resolutionX(); x++) {
             glm::vec3 resoult(0.0f);
 
-            rt::ray r = genRay(x, y, cam);
+            rt::ray r = cam.genRay(x, y);
 
             float skyVar = (glm::normalize(r.direction()).y + 1) / 2;
             glm::vec3 skyColur(0.5f, 0.7f, 1.0f);
