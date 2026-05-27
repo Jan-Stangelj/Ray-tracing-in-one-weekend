@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 
+#include "glm/ext/vector_float3.hpp"
+#include "glm/geometric.hpp"
 #include "ray.hpp"
 #include "camera.hpp"
 
@@ -16,7 +18,7 @@ int main() {
     sf::Image resoult({800, 600});
     sf::Texture resoultTexture;
 
-    rt::camera cam(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), 800, 600, 60.0f);
+    rt::camera cam(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f), 800, 600, 60.0f);
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -48,12 +50,18 @@ int main() {
     return 0;
 }
 
-bool raySphere(rt::ray r, glm::vec3 center, float radius) {
-    glm::vec3 oc = r.origin() - center;
-    float a = glm::dot(r.direction(), r.direction());
-    float half_b = dot(oc, r.direction());
-    float c = dot(oc, oc) - radius * radius;
-    return (half_b*half_b - a*c) >= 0;
+float raySphere(rt::ray r, glm::vec3 center, float radius) {
+    glm::vec3 oc = center - r.origin();
+    float a = dot(r.direction(), r.direction());
+    float b = -2.0 * dot(r.direction(), oc);
+    float c = dot(oc, oc) - radius*radius;
+    float discriminant = b*b - 4*a*c;
+
+    if (discriminant < 0) {
+        return -1.0;
+    } else {
+        return (-b - std::sqrt(discriminant) ) / (2.0*a);
+    }
 }
 
 void rayTrace(sf::Image& resoultImage, rt::camera cam) {
@@ -67,10 +75,17 @@ void rayTrace(sf::Image& resoultImage, rt::camera cam) {
             glm::vec3 skyColur(0.5f, 0.7f, 1.0f);
             glm::vec3 groundColur(1.0f);
 
-            resoult = glm::vec3(skyVar * groundColur + (1.0f-skyVar) * skyColur);
+            float intersect = raySphere(r, glm::vec3(0.0f, 0.0f, -3.0f), 0.5f);
 
-            if (raySphere(r, glm::vec3(0.0f, 0.0f, 3.0f), 0.5f))
-                resoult = glm::vec3(1.0f);
+            if (intersect < 0.0f) {
+                resoult = glm::vec3(skyVar * skyColur + (1.0f-skyVar) * groundColur);
+                resoultImage.setPixel({x, y}, sf::Color(resoult.r*255, resoult.g*255, resoult.b*255, 255));
+                continue;
+            }
+
+            glm::vec3 normal = glm::normalize(r.at(intersect) - glm::vec3(0.0f, 0.0f, -3.0f));
+
+            resoult = normal * 0.5f + 0.5f;
 
             resoultImage.setPixel({x, y}, sf::Color(resoult.r*255, resoult.g*255, resoult.b*255, 255));
         }

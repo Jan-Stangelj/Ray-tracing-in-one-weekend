@@ -30,7 +30,7 @@ namespace rt {
 
         rt::ray genRay(uint32_t x, uint32_t y) {
             float ndcX = (x + 0.5f) / m_resolutionX * 2 - 1;
-            float ndcY = (y + 0.5f) / m_resolutionY * 2 - 1;
+            float ndcY = ((m_resolutionY - y) + 0.5f) / m_resolutionY * 2 - 1;
 
             glm::vec4 nearClip = glm::vec4(ndcX, ndcY, -1.0f, 1.0f);
             glm::vec4 farClip = glm::vec4(ndcX, ndcY, 1.0f, 1.0f);
