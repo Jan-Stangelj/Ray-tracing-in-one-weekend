@@ -1,6 +1,8 @@
+#include "glm/common.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/quaternion_common.hpp"
 #include "glm/geometric.hpp"
 #include "glm/trigonometric.hpp"
 
@@ -99,6 +101,12 @@ void rayTrace(sf::Image& resoultImage, camera cam) {
             glm::vec3 resoult(0.0f);
 
             ray r = genRay(x, y, cam);
+
+            float skyVar = (glm::normalize(r.direction).y + 1) / 2;
+            glm::vec3 skyColur(0.5f, 0.7f, 1.0f);
+            glm::vec3 groundColur(1.0f);
+
+            resoult = glm::vec3(skyVar * groundColur + (1.0f-skyVar) * skyColur);
 
             if (raySphere(r, glm::vec3(0.0f, 0.0f, 3.0f), 0.5f))
                 resoult = glm::vec3(1.0f);
