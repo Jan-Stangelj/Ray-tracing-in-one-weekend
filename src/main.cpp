@@ -52,15 +52,15 @@ int main() {
 
 float raySphere(rt::ray r, glm::vec3 center, float radius) {
     glm::vec3 oc = center - r.origin();
-    float a = dot(r.direction(), r.direction());
-    float b = -2.0 * dot(r.direction(), oc);
-    float c = dot(oc, oc) - radius*radius;
-    float discriminant = b*b - 4*a*c;
+    float a = glm::pow(glm::length(r.direction()), 2);
+    float h = dot(r.direction(), oc);
+    float c = glm::pow(glm::length(oc), 2) - radius*radius;
+    float discriminant = h*h - a*c;
 
     if (discriminant < 0) {
         return -1.0;
     } else {
-        return (-b - std::sqrt(discriminant) ) / (2.0*a);
+        return (h - std::sqrt(discriminant)) / a;
     }
 }
 
