@@ -11,20 +11,22 @@
 
 #include <iostream>
 
-void rayTrace(sf::Image& resoult, rt::camera cam);
+void rayTrace(sf::Image& resoult, const rt::camera& cam, const rt::scene& scene);
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Ray tracing in one weekend", sf::Style::Titlebar | sf::Style::Close);
 
+    rt::camera cam(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f), 800, 600, 60.0f);
+
+    rt::scene scene;
+    scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, glm::vec3(1.0f));
+    scene.spheres.emplace_back(glm::vec3(0.0f, -1000.5f, 0.0f), 1000.0f, glm::vec3(1.0f));
+
     sf::Image resoult({800, 600});
     sf::Texture resoultTexture;
-
-    rt::camera cam(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f), 800, 600, 60.0f);
-
     auto start = std::chrono::high_resolution_clock::now();
 
-    rayTrace(resoult, cam);
-
+    rayTrace(resoult, cam, scene);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> ms = end - start;
@@ -51,9 +53,7 @@ int main() {
     return 0;
 }
 
-void rayTrace(sf::Image& resoultImage, rt::camera cam) {
-    rt::sphere sph(glm::vec3(0.0f, 0.0f, -3.0f), 0.5f, glm::vec3(1.0f));
-
+void rayTrace(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& scene) {
     for (unsigned int y = 0; y < cam.resolutionY(); y++) {
         for (unsigned int x = 0; x < cam.resolutionX(); x++) {
             glm::vec3 resoult(0.0f);
@@ -62,7 +62,7 @@ void rayTrace(sf::Image& resoultImage, rt::camera cam) {
 
             rt::hitInfo hit;
 
-            if (!sph.hit(r, hit)) {
+            if (!scene.hit(r, hit)) {
                 float skyVar = (glm::normalize(r.direction()).y + 1) / 2;
 
                 glm::vec3 skyColur(0.5f, 0.7f, 1.0f);

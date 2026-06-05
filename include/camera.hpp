@@ -18,17 +18,17 @@ namespace rt {
                                                                                                                      m_resolutionY(resolutionY), 
                                                                                                                      m_fovY(fovY) {
 
-            glm::mat4 view = glm::lookAt(origin, lookAt, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::translate(glm::mat4(1.0f), origin);
+            glm::mat4 view = glm::lookAt(origin, lookAt, glm::vec3(0.0f, 1.0f, 0.0f));
             glm::mat4 proj = glm::perspective(glm::radians(fovY), (float)resolutionX/(float)resolutionY, 0.1f, 100.0f);
             glm::mat4 vp = proj * view;
             m_vpInv = glm::inverse(vp);
         }
         ~camera() = default;
 
-        uint32_t resolutionX() { return m_resolutionX; }
-        uint32_t resolutionY() { return m_resolutionY; }
+        uint32_t resolutionX() const { return m_resolutionX; }
+        uint32_t resolutionY() const { return m_resolutionY; }
 
-        rt::ray genRay(uint32_t x, uint32_t y) {
+        rt::ray genRay(uint32_t x, uint32_t y) const {
             float ndcX = (x + 0.5f) / m_resolutionX * 2 - 1;
             float ndcY = ((m_resolutionY - y) + 0.5f) / m_resolutionY * 2 - 1;
 
