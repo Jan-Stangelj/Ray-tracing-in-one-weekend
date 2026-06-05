@@ -1,12 +1,13 @@
-#include <glm/glm.hpp>
-
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 
+#include <glm/glm.hpp>
 #include "glm/ext/vector_float3.hpp"
 #include "glm/geometric.hpp"
+
 #include "ray.hpp"
 #include "camera.hpp"
+#include "scene.hpp"
 
 #include <iostream>
 
@@ -50,42 +51,29 @@ int main() {
     return 0;
 }
 
-float raySphere(rt::ray r, glm::vec3 center, float radius) {
-    glm::vec3 oc = center - r.origin();
-    float a = glm::pow(glm::length(r.direction()), 2);
-    float h = dot(r.direction(), oc);
-    float c = glm::pow(glm::length(oc), 2) - radius*radius;
-    float discriminant = h*h - a*c;
-
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (h - std::sqrt(discriminant)) / a;
-    }
-}
-
 void rayTrace(sf::Image& resoultImage, rt::camera cam) {
+    rt::sphere sph(glm::vec3(0.0f, 0.0f, -3.0f), 0.5f, glm::vec3(1.0f));
+
     for (unsigned int y = 0; y < cam.resolutionY(); y++) {
         for (unsigned int x = 0; x < cam.resolutionX(); x++) {
             glm::vec3 resoult(0.0f);
 
             rt::ray r = cam.genRay(x, y);
 
-            float skyVar = (glm::normalize(r.direction()).y + 1) / 2;
-            glm::vec3 skyColur(0.5f, 0.7f, 1.0f);
-            glm::vec3 groundColur(1.0f);
+            rt::hitInfo hit;
 
-            float intersect = raySphere(r, glm::vec3(0.0f, 0.0f, -3.0f), 0.5f);
+            if (!sph.hit(r, hit)) {
+                float skyVar = (glm::normalize(r.direction()).y + 1) / 2;
 
-            if (intersect < 0.0f) {
+                glm::vec3 skyColur(0.5f, 0.7f, 1.0f);
+                glm::vec3 groundColur(1.0f);
+
                 resoult = glm::vec3(skyVar * skyColur + (1.0f-skyVar) * groundColur);
                 resoultImage.setPixel({x, y}, sf::Color(resoult.r*255, resoult.g*255, resoult.b*255, 255));
                 continue;
             }
 
-            glm::vec3 normal = glm::normalize(r.at(intersect) - glm::vec3(0.0f, 0.0f, -3.0f));
-
-            resoult = normal * 0.5f + 0.5f;
+            resoult = hit.normal * 0.5f + 0.5f;
 
             resoultImage.setPixel({x, y}, sf::Color(resoult.r*255, resoult.g*255, resoult.b*255, 255));
         }
