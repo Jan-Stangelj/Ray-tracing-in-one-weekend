@@ -22,10 +22,10 @@ int main() {
     scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, glm::vec3(1.0f));
     scene.spheres.emplace_back(glm::vec3(0.0f, -1000.5f, 0.0f), 1000.0f, glm::vec3(1.0f));
 
-    sf::Image resoult({800, 600});
-    sf::Texture resoultTexture;
     auto start = std::chrono::high_resolution_clock::now();
 
+    sf::Image resoult({800, 600});
+    sf::Texture resoultTexture;
     rayTrace(resoult, cam, scene);
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -34,19 +34,15 @@ int main() {
 
     if (!resoultTexture.loadFromImage(resoult))
         std::cerr << "Failed to load resoult texture.\n";
-
     sf::Sprite resoultSprite(resoultTexture);
 
     while (window.isOpen()) {
-        while (const std::optional event = window.pollEvent()) {
+        while (const std::optional event = window.pollEvent())
             if (event->is<sf::Event::Closed>())
                 window.close();
-        }
 
         window.clear(sf::Color::Black);
-
         window.draw(resoultSprite);
-
         window.display();
     }
 
@@ -59,7 +55,6 @@ void rayTrace(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& s
             glm::vec3 resoult(0.0f);
 
             rt::ray r = cam.genRay(x, y);
-
             rt::hitInfo hit;
 
             if (!scene.hit(r, hit)) {
