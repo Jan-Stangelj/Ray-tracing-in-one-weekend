@@ -9,10 +9,10 @@ namespace rt {
         ray(glm::vec3 origin, glm::vec3 direction) : m_origin(origin), m_direction(direction) {}
         ~ray() = default;
 
-        glm::vec3 origin() { return m_origin; }
-        glm::vec3 direction() {return m_direction; }
+        glm::vec3 origin() const { return m_origin; }
+        glm::vec3 direction() const {return m_direction; }
 
-        glm::vec3 at(float distance) { return m_origin + distance*m_direction; }
+        glm::vec3 at(float distance) const { return m_origin + distance*m_direction; }
 
     private:
 
