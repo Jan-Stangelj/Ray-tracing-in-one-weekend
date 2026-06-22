@@ -55,7 +55,7 @@ void rayTrace(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& s
     for (unsigned int y = 0; y < cam.resolutionY(); y++) {
         for (unsigned int x = 0; x < cam.resolutionX(); x++) {
 
-            unsigned int samples = 10;
+            unsigned int samples = 8;
             float jiggle = 0.001f;
 
             rt::ray ray = cam.genRay(x, y);

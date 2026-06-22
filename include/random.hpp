@@ -22,10 +22,10 @@ namespace rt {
     }
 
     glm::vec3 randomUnitVec3(uint32_t& seed) {
-        while (true) {
-            glm::vec3 v = randomVec3(seed, -1.0f, 1.0f);
-            if (glm::length(v) <= 1.0f)
-                return glm::normalize(v);
-        }
+        float theta = 2.0f * 3.1415926535f * randomFloat(seed);  // azimuth
+        float phi = acos(1.0f - 2.0f * randomFloat(seed));       // inclination
+
+        float sinPhi = sin(phi);
+        return glm::vec3(cos(theta) * sinPhi, sin(theta) * sinPhi, cos(phi));
     }
 }
