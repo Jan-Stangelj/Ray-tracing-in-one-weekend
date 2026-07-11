@@ -11,9 +11,9 @@
 #include <iostream>
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({RT_RESOLUTION_X, RT_RESOLUTION_Y}), RT_TITLE, sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode({rt::resolutionX, rt::resolutionY}), rt::title, sf::Style::Titlebar | sf::Style::Close);
 
-    rt::camera cam(glm::vec3(0.0f, 1.0f, -3.0f), glm::vec3(0.0f), RT_RESOLUTION_X, RT_RESOLUTION_Y, RT_FOV_Y);
+    rt::camera cam(glm::vec3(0.0f, 1.0f, -3.0f), glm::vec3(0.0f), rt::resolutionX, rt::resolutionY, rt::fovY);
 
     rt::scene scene;
     scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, glm::vec3(0.3f), glm::vec3(0.0f));
@@ -22,7 +22,7 @@ int main() {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    sf::Image resoult({RT_RESOLUTION_X, RT_RESOLUTION_Y});
+    sf::Image resoult({rt::resolutionX, rt::resolutionY});
     sf::Texture resoultTexture;
     rt::render(resoult, cam, scene);
 

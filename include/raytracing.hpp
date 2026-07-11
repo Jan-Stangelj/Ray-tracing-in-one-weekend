@@ -29,7 +29,7 @@ namespace rt {
 
         rt::hitInfo hit;
 
-        for (unsigned int i = 0; i < RT_BOUNCES; i++) {
+        for (unsigned int i = 0; i < rt::bounces; i++) {
             hit = traceRay(r, scene);
 
             if (hit.sphere == -1) {
@@ -61,12 +61,12 @@ namespace rt {
 
                 uint32_t seed = rt::PCGhash(x) + rt::PCGhash(y);
 
-                for (unsigned int i = 0; i < RT_SAMPLES; i++) {
-                    rt::ray r(ray.origin(), glm::normalize(ray.direction() + rt::randomUnitVec3(seed)*RT_JIGGLE));
+                for (unsigned int i = 0; i < rt::samples; i++) {
+                    rt::ray r(ray.origin(), glm::normalize(ray.direction() + rt::randomUnitVec3(seed)*rt::jiggle));
                     resoult += perSample(r, scene, seed);
                 }
 
-                resoult /= RT_SAMPLES;
+                resoult /= rt::samples;
 
                 resoult = glm::clamp(resoult, 0.0f, 1.0f);
 

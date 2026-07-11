@@ -1,10 +1,16 @@
 #pragma once
 
-#define RT_BOUNCES 6
-#define RT_SAMPLES 64
+#include <cstdint>
+#include <string>
 
-#define RT_RESOLUTION_X 800
-#define RT_RESOLUTION_Y 600
-#define RT_TITLE "Ray tracing in one weekend"
-#define RT_FOV_Y 60.0f
-#define RT_JIGGLE 0.001f
+namespace rt {
+    uint32_t bounces = 6;
+    uint32_t samples = 64;
+
+    uint32_t resolutionX = 800;
+    uint32_t resolutionY = 600;
+    std::string title = "Ray tracing in one weekend";
+
+    float fovY = 60.0f;
+    float jiggle = 0.001f;
+}
