@@ -34,7 +34,7 @@ glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed) {
 
     rt::hitInfo hit;
 
-    uint32_t bounces = 3;
+    uint32_t bounces = 6;
 
     for (unsigned int i = 0; i < bounces; i++) {
         hit = traceRay(r, scene);
@@ -58,10 +58,12 @@ glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed) {
 }
 
 void render(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& scene) {
+
+    #pragma omp parallel for
     for (unsigned int y = 0; y < cam.resolutionY(); y++) {
         for (unsigned int x = 0; x < cam.resolutionX(); x++) {
 
-            unsigned int samples = 8;
+            unsigned int samples = 64;
             float jiggle = 0.001f;
 
             rt::ray ray = cam.genRay(x, y);
@@ -83,8 +85,6 @@ void render(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& sce
 
             resoultImage.setPixel({x, y}, sf::Color(resoult.r*255, resoult.g*255, resoult.b*255, 255));
         }
-
-        std::cout << floor((float)y / (float)cam.resolutionY() * 100.0f) << "% completed\n";
     }
 }
 
@@ -96,7 +96,7 @@ int main() {
     rt::scene scene;
     scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, glm::vec3(0.3f), glm::vec3(0.0f));
     scene.spheres.emplace_back(glm::vec3(0.0f, -1000.5f, 0.0f), 1000.0f, glm::vec3(0.5f), glm::vec3(0.0f));
-    scene.spheres.emplace_back(glm::vec3(1.5f, 1.0f, 1.5f), 0.5f, glm::vec3(0.0f), glm::vec3(25.0f));
+    scene.spheres.emplace_back(glm::vec3(1.5f, 1.0f, -1.0f), 0.5f, glm::vec3(0.0f), glm::vec3(10.0f));
 
     auto start = std::chrono::high_resolution_clock::now();
 

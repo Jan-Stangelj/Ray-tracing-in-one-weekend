@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 find_package(SFML 3 COMPONENTS Graphics Window System REQUIRED)
+find_package(OpenMP REQUIRED)
 
 add_subdirectory("vendor/glm")
 
@@ -22,4 +23,4 @@ endif()
 
 target_include_directories("rt" PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-target_link_libraries("rt" PRIVATE glm SFML::Graphics SFML::Window SFML::System)
+target_link_libraries("rt" PRIVATE glm SFML::Graphics SFML::Window SFML::System OpenMP::OpenMP_CXX)
