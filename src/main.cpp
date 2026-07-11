@@ -2,6 +2,7 @@
 #include <SFML/Graphics/Image.hpp>
 
 #include <glm/glm.hpp>
+#include "glm/exponential.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/geometric.hpp"
 
@@ -60,7 +61,7 @@ void render(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& sce
     for (unsigned int y = 0; y < cam.resolutionY(); y++) {
         for (unsigned int x = 0; x < cam.resolutionX(); x++) {
 
-            unsigned int samples = 4;
+            unsigned int samples = 8;
             float jiggle = 0.001f;
 
             rt::ray ray = cam.genRay(x, y);
@@ -77,6 +78,8 @@ void render(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& sce
             resoult /= samples;
 
             resoult = glm::clamp(resoult, 0.0f, 1.0f);
+
+            resoult = glm::pow(resoult, glm::vec3(1.0f/2.2f));
 
             resoultImage.setPixel({x, y}, sf::Color(resoult.r*255, resoult.g*255, resoult.b*255, 255));
         }
