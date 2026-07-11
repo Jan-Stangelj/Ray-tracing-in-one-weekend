@@ -7,6 +7,7 @@
 #include "camera.hpp"
 
 #include <SFML/Graphics/Image.hpp>
+#include <cstdint>
 
 namespace rt {
         rt::hitInfo traceRay(rt::ray r, const rt::scene& scene) {
@@ -32,7 +33,7 @@ namespace rt {
         for (unsigned int i = 0; i < rt::bounces; i++) {
             hit = traceRay(r, scene);
 
-            if (hit.sphere == -1) {
+            if (hit.sphere == UINT32_MAX) {
                 return resoult * hit.solidAdd;
             }
             if (scene.spheres.at(hit.sphere).getEmission() != glm::vec3(0.0f)) {

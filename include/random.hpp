@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glm/geometric.hpp"
 #include <cstdint>
 
 #include <glm/glm.hpp>
