@@ -10,7 +10,7 @@
 #include "ray.hpp"
 #include "camera.hpp"
 #include "scene.hpp"
-#include "random"
+#include "settings.hpp"
 
 #include <iostream>
 
@@ -34,9 +34,7 @@ glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed) {
 
     rt::hitInfo hit;
 
-    uint32_t bounces = 6;
-
-    for (unsigned int i = 0; i < bounces; i++) {
+    for (unsigned int i = 0; i < RT_BOUNCES; i++) {
         hit = traceRay(r, scene);
 
         if (hit.sphere == -1) {
@@ -62,22 +60,18 @@ void render(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& sce
     #pragma omp parallel for
     for (unsigned int y = 0; y < cam.resolutionY(); y++) {
         for (unsigned int x = 0; x < cam.resolutionX(); x++) {
-
-            unsigned int samples = 64;
-            float jiggle = 0.001f;
-
             rt::ray ray = cam.genRay(x, y);
 
             glm::vec3 resoult(0.0f);
 
             uint32_t seed = rt::PCGhash(x) + rt::PCGhash(y);
 
-            for (unsigned int i = 0; i < samples; i++) {
-                rt::ray r(ray.origin(), glm::normalize(ray.direction() + rt::randomUnitVec3(seed)*jiggle));
+            for (unsigned int i = 0; i < RT_SAMPLES; i++) {
+                rt::ray r(ray.origin(), glm::normalize(ray.direction() + rt::randomUnitVec3(seed)*RT_JIGGLE));
                 resoult += perSample(r, scene, seed);
             }
 
-            resoult /= samples;
+            resoult /= RT_SAMPLES;
 
             resoult = glm::clamp(resoult, 0.0f, 1.0f);
 
