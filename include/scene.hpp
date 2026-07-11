@@ -2,8 +2,6 @@
 
 #include <glm/glm.hpp>
 #include <limits>
-#include <type_traits>
-#include <typeinfo>
 #include <vector>
 
 #include "ray.hpp"
