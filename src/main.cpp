@@ -33,7 +33,7 @@ glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed) {
 
     rt::hitInfo hit;
 
-    uint32_t bounces = 12;
+    uint32_t bounces = 3;
 
     for (unsigned int i = 0; i < bounces; i++) {
         hit = traceRay(r, scene);
@@ -60,7 +60,7 @@ void render(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& sce
     for (unsigned int y = 0; y < cam.resolutionY(); y++) {
         for (unsigned int x = 0; x < cam.resolutionX(); x++) {
 
-            unsigned int samples = 1024;
+            unsigned int samples = 4;
             float jiggle = 0.001f;
 
             rt::ray ray = cam.genRay(x, y);
