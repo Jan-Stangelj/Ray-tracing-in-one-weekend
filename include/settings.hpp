@@ -5,7 +5,7 @@
 
 namespace rt {
     uint32_t bounces = 6;
-    uint32_t samples = 64;
+    uint32_t samples = 128;
 
     uint32_t resolutionX = 800;
     uint32_t resolutionY = 600;
