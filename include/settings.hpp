@@ -4,13 +4,13 @@
 #include <string>
 
 namespace rt {
-    uint32_t bounces = 6;
-    uint32_t samples = 128;
+    inline uint32_t bounces = 6;
+    inline uint32_t samples = 128;
 
-    uint32_t resolutionX = 800;
-    uint32_t resolutionY = 600;
-    std::string title = "Ray tracing in one weekend";
+    const uint32_t resolutionX = 800;
+    const uint32_t resolutionY = 600;
+    const std::string title = "Ray tracing in one weekend";
 
-    float fovY = 60.0f;
-    float jiggle = 0.001f;
+    inline float fovY = 60.0f;
+    inline float jiggle = 0.001f;
 }
