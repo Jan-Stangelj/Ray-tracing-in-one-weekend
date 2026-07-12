@@ -6,7 +6,6 @@
 #include "random.hpp"
 #include "camera.hpp"
 
-#include <SFML/Graphics/Image.hpp>
 #include <cstdint>
 
 namespace rt {
@@ -51,7 +50,7 @@ namespace rt {
         return resoult;
     }
 
-    void render(sf::Image& resoultImage, const rt::camera& cam, const rt::scene& scene) {
+    void render(std::vector<uint8_t>& resoultImage, const rt::camera& cam, const rt::scene& scene) {
 
         #pragma omp parallel for
         for (unsigned int y = 0; y < cam.resolutionY(); y++) {
@@ -73,7 +72,10 @@ namespace rt {
 
                 resoult = glm::pow(resoult, glm::vec3(1.0f/2.2f));
 
-                resoultImage.setPixel({x, y}, sf::Color(resoult.r*255, resoult.g*255, resoult.b*255, 255));
+                uint32_t index = (y * rt::resolutionX + x)*3;
+                resoultImage.at(index) = resoult.r*255;
+                resoultImage.at(index+1) = resoult.g*255;
+                resoultImage.at(index+2) = resoult.b*255;
             }
         }
     }
