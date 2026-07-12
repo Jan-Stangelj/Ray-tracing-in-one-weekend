@@ -141,7 +141,7 @@ int main() {
     rt::scene scene;
     scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, glm::vec3(0.5f, 0.3f, 0.3f), glm::vec3(0.0f));
     scene.spheres.emplace_back(glm::vec3(0.0f, -1000.5f, 0.0f), 1000.0f, glm::vec3(0.3f, 0.5f, 0.3f), glm::vec3(0.0f));
-    scene.spheres.emplace_back(glm::vec3(-65.0f, 5.0f, 100.0f), 30.0f, glm::vec3(0.0f), glm::vec3(30.0f, 20.0f, 20.0f));
+    scene.spheres.emplace_back(glm::vec3(-65.0f, 5.0f, 100.0f), 30.0f, glm::vec3(0.0f), glm::vec3(100.0f, 20.0f, 20.0f));
 
     auto start = std::chrono::high_resolution_clock::now();
 
