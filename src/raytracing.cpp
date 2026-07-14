@@ -58,7 +58,12 @@ namespace rt {
             resoult *= scene.spheres.at(hit.sphere).getColur();
 
             glm::vec3 newOrigin = hit.origin + hit.normal * 0.0001f;
-            glm::vec3 newDirection = glm::normalize(hit.normal + rt::randomUnitVec3(seed));
+
+            glm::vec3 randomDirection = glm::normalize(hit.normal + rt::randomUnitVec3(seed));
+            glm::vec3 reflectedDirection = glm::reflect(r.direction(), hit.normal);
+
+            float smoothnes = scene.spheres.at(hit.sphere).getSmoothnes();
+            glm::vec3 newDirection = (randomDirection * (1.0f - smoothnes)) + (reflectedDirection * smoothnes);
 
             r = rt::ray(newOrigin, newDirection);
         }

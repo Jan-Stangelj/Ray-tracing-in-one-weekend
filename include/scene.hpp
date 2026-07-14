@@ -22,12 +22,13 @@ namespace rt {
     public:
 
         sphere() = default;
-        sphere(glm::vec3 origin, float radius, glm::vec3 albedo, glm::vec3 emission);
+        sphere(glm::vec3 origin, float radius, glm::vec3 albedo, float smoothnes, glm::vec3 emission);
         ~sphere() = default;
 
         bool hit(const rt::ray& r, rt::hitInfo& result) const;
 
         glm::vec3 getColur() const;
+        float getSmoothnes() const;
         glm::vec3 getEmission() const;
 
     private:
@@ -36,6 +37,7 @@ namespace rt {
         float m_radius = 1.0f;
 
         glm::vec3 m_albedo = glm::vec3(0.0f);
+        float m_smoothnes = 0.0f;
         glm::vec3 m_emission = glm::vec3(0.0f);
 
     };
