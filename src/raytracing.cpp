@@ -3,6 +3,27 @@
 #include "settings.hpp"
 #include "random.hpp"
 
+#include <algorithm>
+
+glm::vec3 PBRNeutralToneMapping( glm::vec3 color ) {
+  const float startCompression = 0.8 - 0.04;
+  const float desaturation = 0.15;
+
+  float x = std::min(color.r, std::min(color.g, color.b));
+  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
+  color -= offset;
+
+  float peak = std::max(color.r, std::max(color.g, color.b));
+  if (peak < startCompression) return color;
+
+  const float d = 1. - startCompression;
+  float newPeak = 1. - d * d / (peak + d - startCompression);
+  color *= newPeak / peak;
+
+  float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
+  return mix(color, newPeak * glm::vec3(1, 1, 1), g);
+}
+
 namespace rt {
 
     rt::hitInfo traceRay(const rt::ray& r, const rt::scene& scene) {
@@ -63,7 +84,7 @@ namespace rt {
 
                 resoult /= rt::samples;
 
-                resoult = glm::clamp(resoult, 0.0f, 1.0f);
+                resoult = PBRNeutralToneMapping(resoult);
 
                 resoult = glm::pow(resoult, glm::vec3(1.0f/2.2f));
 
