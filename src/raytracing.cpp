@@ -4,6 +4,8 @@
 #include "random.hpp"
 
 #include <algorithm>
+#include <atomic>
+#include <iostream>
 
 glm::vec3 PBRNeutralToneMapping( glm::vec3 color ) {
   const float startCompression = 0.8 - 0.04;
@@ -66,6 +68,10 @@ namespace rt {
 
     void render(std::vector<uint8_t>& resoultImage, const rt::camera& cam, const rt::scene& scene) {
 
+        std::atomic<double> atomicLuminance = 0.0;
+
+        std::vector<float> tempImage(rt::resolutionX*rt::resolutionY*3);
+
         #pragma omp parallel for
         for (unsigned int y = 0; y < rt::resolutionY; y++) {
 
@@ -84,11 +90,36 @@ namespace rt {
 
                 resoult /= rt::samples;
 
-                resoult = PBRNeutralToneMapping(resoult);
+                atomicLuminance.fetch_add(std::log(1e-4 + (0.2126*resoult.r + 0.7152*resoult.g + 0.0722*resoult.b)));
+
+                uint32_t index = (y * rt::resolutionX + x)*3;
+                tempImage.at(index) = resoult.r;
+                tempImage.at(index+1) = resoult.g;
+                tempImage.at(index+2) = resoult.b;
+                
+            }
+
+        }
+
+        double luminance = std::exp(atomicLuminance.load() / (rt::resolutionX * rt::resolutionY));
+
+        std::cout << "Luminance: " << luminance << "\n";
+
+        #pragma omp parallel for
+        for (unsigned int y = 0; y < rt::resolutionY; y++) {
+
+            for (unsigned int x = 0; x < rt::resolutionX; x++) {
+
+                uint32_t index = (y * rt::resolutionX + x)*3;
+
+                glm::vec3 resoult(tempImage.at(index),
+                                  tempImage.at(index+1),
+                                  tempImage.at(index+2));
+
+                resoult = PBRNeutralToneMapping(resoult / glm::vec3(luminance));
 
                 resoult = glm::pow(resoult, glm::vec3(1.0f/2.2f));
 
-                uint32_t index = (y * rt::resolutionX + x)*3;
                 resoultImage.at(index) = resoult.r*255;
                 resoultImage.at(index+1) = resoult.g*255;
                 resoultImage.at(index+2) = resoult.b*255;
