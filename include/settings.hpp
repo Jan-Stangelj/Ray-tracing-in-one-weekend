@@ -4,7 +4,7 @@
 #include <string>
 
 namespace rt {
-    inline uint32_t bounces = 6;
+    inline uint32_t bounces = 3;
     inline uint32_t samples = 128;
 
     const uint32_t resolutionX = 800;

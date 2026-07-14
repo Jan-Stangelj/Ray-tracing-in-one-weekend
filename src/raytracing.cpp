@@ -10,12 +10,7 @@ namespace rt {
         rt::hitInfo hit;
 
         if (!scene.hit(r, hit)) {
-            float skyVar = (glm::normalize(r.direction()).y + 1) / 2;
-
-            glm::vec3 skyColur(0.5f, 0.7f, 1.0f);
-            glm::vec3 groundColur(1.0f);
-
-            hit.solidAdd = glm::vec3(skyVar * skyColur + (1.0f-skyVar) * groundColur);
+            hit.solidAdd = scene.skybox.colorAt(r.direction());
         }
 
         return hit;

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ray.hpp"
+#include "skybox.hpp"
 
 namespace rt {
 
@@ -46,6 +47,8 @@ namespace rt {
         ~scene() = default;
 
         std::vector<rt::sphere> spheres = {};
+
+        rt::skybox skybox;
 
         bool hit(const rt::ray& r, rt::hitInfo& resoult) const;
 
