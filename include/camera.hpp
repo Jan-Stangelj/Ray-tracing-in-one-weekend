@@ -11,6 +11,7 @@ namespace rt {
     public:
 
         camera(glm::vec3 origin, glm::vec3 lookAt, uint32_t resolutionX, uint32_t resolutionY, float fovY = 60.0f);
+        camera() = default;
         ~camera() = default;
 
         uint32_t resolutionX() const;
