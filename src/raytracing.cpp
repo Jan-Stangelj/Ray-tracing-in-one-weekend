@@ -58,7 +58,13 @@ namespace rt {
                 glm::vec3 specularDirection = glm::reflect(r.direction(), hit.normal);
                 
                 float smoothnes = sphere.getSmoothnes();
-                glm::vec3 newDirection = glm::normalize((specularDirection * (smoothnes)) + (diffuseDirection * (1.0f - smoothnes)));
+                glm::vec3 newDirection(0.0f);
+
+                if (randomFloat(seed) <= smoothnes)
+                    newDirection = specularDirection;
+                else
+                    newDirection = diffuseDirection;
+
                 r = rt::ray(newOrigin, newDirection);
 
                 incomingLight += sphere.getEmission() * rayColur;
