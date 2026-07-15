@@ -1,5 +1,6 @@
 #include "raytracing.hpp"
 
+#include "glm/geometric.hpp"
 #include "scene.hpp"
 #include "settings.hpp"
 #include "random.hpp"
@@ -95,7 +96,11 @@ namespace rt {
 
                     glm::vec3 rayJiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::jiggle;
 
-                    rt::ray r(ray.origin() + rayJiggle, ray.direction());
+                    glm::vec3 DOFjiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::DOFjiggle;
+                    glm::vec3 DOForigin = ray.origin() + DOFjiggle;
+                    glm::vec3 DOFdirection = glm::normalize(ray.at(rt::DOFfocus) - DOForigin);
+
+                    rt::ray r(DOForigin + rayJiggle, DOFdirection);
 
                     resoult += perSample(r, scene, seed);
                 }

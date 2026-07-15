@@ -6,7 +6,7 @@ int main() {
 
     renderer.init();
 
-    renderer.camera = rt::camera(glm::vec3(0.0f, 0.5f, -3.0f), glm::vec3(0.0f), rt::resolutionX, rt::resolutionY, rt::fovY);
+    renderer.camera = rt::camera(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f), rt::resolutionX, rt::resolutionY, rt::fovY);
 
     renderer.scene.skybox = rt::skybox("../assets/skyboxes/skybox1.hdr");
 
