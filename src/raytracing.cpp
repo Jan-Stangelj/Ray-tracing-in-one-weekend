@@ -46,7 +46,7 @@ namespace rt {
         glm::vec3 incomingLight(0.0f);
         glm::vec3 rayColur(1.0f);
 
-        for (unsigned int i = 0; i < rt::bounces; i++) {
+        for (unsigned int i = 0; i < rt::maxBounces; i++) {
             rt::hitInfo hit = traceRay(r, scene);
             
             if (hit.sphere != UINT32_MAX) {
@@ -60,10 +60,14 @@ namespace rt {
                 float smoothnes = sphere.getSmoothnes();
                 glm::vec3 newDirection(0.0f);
 
-                if (randomFloat(seed) <= smoothnes)
+                if (randomFloat(seed) <= smoothnes) {
                     newDirection = specularDirection;
-                else
+                    rayColur /= smoothnes;
+                }
+                else {
                     newDirection = diffuseDirection;
+                    rayColur /= 1.0f - smoothnes;
+                }
 
                 r = rt::ray(newOrigin, newDirection);
 
@@ -74,6 +78,16 @@ namespace rt {
             else {
                 incomingLight += hit.solidAdd * rayColur;
                 break;
+            }
+
+            if (i >= minBounces) {
+                float luminance = 0.2126*rayColur.r + 0.7152*rayColur.g + 0.0722*rayColur.b;
+                luminance = std::clamp(luminance, 0.05f, 1.0f);
+
+                if (randomFloat(seed) > luminance)
+                    break;
+
+                rayColur /= luminance;
             }
         }
 
