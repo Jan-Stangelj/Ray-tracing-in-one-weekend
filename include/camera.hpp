@@ -14,10 +14,10 @@ namespace rt {
         camera() = default;
         ~camera() = default;
 
-        uint32_t resolutionX() const;
-        uint32_t resolutionY() const;
-
         rt::ray genRay(uint32_t x, uint32_t y) const;
+
+        glm::vec3 getUp() const;
+        glm::vec3 getRight() const;
 
     private:
 
@@ -25,6 +25,9 @@ namespace rt {
 
         glm::vec3 m_origin = glm::vec3(0.0f);
         glm::vec3 m_lookAt = glm::vec3(0.0f);
+
+        glm::vec3 m_up = glm::vec3(0.0f);
+        glm::vec3 m_right = glm::vec3(0.0f);
 
     };
 }

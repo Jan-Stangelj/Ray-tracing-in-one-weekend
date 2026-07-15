@@ -91,7 +91,12 @@ namespace rt {
                 uint32_t seed = rt::PCGhash(x) + rt::PCGhash(y);
 
                 for (unsigned int i = 0; i < rt::samples; i++) {
-                    rt::ray r(ray.origin(), glm::normalize(ray.direction() + rt::randomUnitVec3(seed)*rt::jiggle));
+                    glm::vec3 rand = randomUnitVec3(seed);
+
+                    glm::vec3 rayJiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::jiggle;
+
+                    rt::ray r(ray.origin() + rayJiggle, ray.direction());
+
                     resoult += perSample(r, scene, seed);
                 }
 
