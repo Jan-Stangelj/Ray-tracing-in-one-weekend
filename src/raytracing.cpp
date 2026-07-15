@@ -1,5 +1,6 @@
 #include "raytracing.hpp"
 
+#include "scene.hpp"
 #include "settings.hpp"
 #include "random.hpp"
 
@@ -41,34 +42,35 @@ namespace rt {
 
     glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed) {
 
-        glm::vec3 resoult(1.0f);
-
-        rt::hitInfo hit;
+        glm::vec3 incomingLight(0.0f);
+        glm::vec3 rayColur(1.0f);
 
         for (unsigned int i = 0; i < rt::bounces; i++) {
-            hit = traceRay(r, scene);
+            rt::hitInfo hit = traceRay(r, scene);
+            
+            if (hit.sphere != UINT32_MAX) {
+                const rt::sphere& sphere = scene.spheres.at(hit.sphere);
 
-            if (hit.sphere == UINT32_MAX) {
-                return resoult * hit.solidAdd;
+                glm::vec3 newOrigin = hit.origin + hit.normal * 0.0001f;
+
+                glm::vec3 diffuseDirection = glm::normalize(hit.normal + rt::randomUnitVec3(seed));
+                glm::vec3 specularDirection = glm::reflect(r.direction(), hit.normal);
+                
+                float smoothnes = sphere.getSmoothnes();
+                glm::vec3 newDirection = glm::normalize((specularDirection * (smoothnes)) + (diffuseDirection * (1.0f - smoothnes)));
+                r = rt::ray(newOrigin, newDirection);
+
+                incomingLight += sphere.getEmission() * rayColur;
+
+                rayColur *= sphere.getColur();
             }
-            if (scene.spheres.at(hit.sphere).getEmission() != glm::vec3(0.0f)) {
-                return resoult * scene.spheres.at(hit.sphere).getEmission();
+            else {
+                incomingLight += hit.solidAdd * rayColur;
+                break;
             }
-
-            resoult *= scene.spheres.at(hit.sphere).getColur();
-
-            glm::vec3 newOrigin = hit.origin + hit.normal * 0.0001f;
-
-            glm::vec3 randomDirection = glm::normalize(hit.normal + rt::randomUnitVec3(seed));
-            glm::vec3 reflectedDirection = glm::reflect(r.direction(), hit.normal);
-
-            float smoothnes = scene.spheres.at(hit.sphere).getSmoothnes();
-            glm::vec3 newDirection = (randomDirection * (1.0f - smoothnes)) + (reflectedDirection * smoothnes);
-
-            r = rt::ray(newOrigin, newDirection);
         }
 
-        return resoult;
+        return incomingLight;
     }
 
     void render(std::vector<uint8_t>& resoultImage, const rt::camera& cam, const rt::scene& scene) {
