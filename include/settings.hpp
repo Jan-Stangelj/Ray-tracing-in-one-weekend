@@ -12,7 +12,7 @@ namespace rt {
     const std::string title = "Ray tracing in one weekend";
 
     inline float fovY = 60.0f;
-    inline float jiggle = 0.001f;
+    inline float AAjiggle = 0.004f;
 
     inline float DOFjiggle = 0.1f;
     inline float DOFfocus = 3.0f;

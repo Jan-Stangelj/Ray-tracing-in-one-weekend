@@ -94,13 +94,13 @@ namespace rt {
                 for (unsigned int i = 0; i < rt::samples; i++) {
                     glm::vec3 rand = randomUnitVec3(seed);
 
-                    glm::vec3 rayJiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::jiggle;
+                    glm::vec3 AAJiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::AAjiggle;
 
                     glm::vec3 DOFjiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::DOFjiggle;
                     glm::vec3 DOForigin = ray.origin() + DOFjiggle;
                     glm::vec3 DOFdirection = glm::normalize(ray.at(rt::DOFfocus) - DOForigin);
 
-                    rt::ray r(DOForigin + rayJiggle, DOFdirection);
+                    rt::ray r(DOForigin + AAJiggle, DOFdirection);
 
                     resoult += perSample(r, scene, seed);
                 }
