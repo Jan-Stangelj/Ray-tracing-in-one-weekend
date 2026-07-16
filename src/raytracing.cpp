@@ -9,37 +9,9 @@
 #include <atomic>
 #include <iostream>
 
-glm::vec3 PBRNeutralToneMapping( glm::vec3 color ) {
-  const float startCompression = 0.8 - 0.04;
-  const float desaturation = 0.15;
-
-  float x = std::min(color.r, std::min(color.g, color.b));
-  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
-  color -= offset;
-
-  float peak = std::max(color.r, std::max(color.g, color.b));
-  if (peak < startCompression) return color;
-
-  const float d = 1. - startCompression;
-  float newPeak = 1. - d * d / (peak + d - startCompression);
-  color *= newPeak / peak;
-
-  float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
-  return mix(color, newPeak * glm::vec3(1, 1, 1), g);
-}
+glm::vec3 PBRNeutralToneMapping( glm::vec3 color );
 
 namespace rt {
-
-    rt::hitInfo traceRay(const rt::ray& r, const rt::scene& scene) {
-
-        rt::hitInfo hit;
-
-        if (!scene.hit(r, hit)) {
-            hit.solidAdd = scene.skybox.colorAt(r.direction());
-        }
-
-        return hit;
-    }
 
     glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed) {
 
@@ -47,9 +19,11 @@ namespace rt {
         glm::vec3 rayColur(1.0f);
 
         for (unsigned int i = 0; i < rt::maxBounces; i++) {
-            rt::hitInfo hit = traceRay(r, scene);
+            rt::hitInfo hit;
             
-            if (hit.sphere != UINT32_MAX) {
+            if (scene.hit(r, hit)) {
+                // Hit shader
+
                 const rt::sphere& sphere = scene.spheres.at(hit.sphere);
 
                 glm::vec3 newOrigin = hit.origin + hit.normal * 0.0001f;
@@ -76,10 +50,13 @@ namespace rt {
                 rayColur *= sphere.getColur();
             }
             else {
-                incomingLight += hit.solidAdd * rayColur;
+                // Miss shader
+                
+                incomingLight += scene.skybox.colorAt(r.direction()) * rayColur;
                 break;
             }
 
+            // Russian roulette
             if (i >= minBounces) {
                 float luminance = 0.2126*rayColur.r + 0.7152*rayColur.g + 0.0722*rayColur.b;
                 luminance = std::clamp(luminance, 0.05f, 1.0f);
@@ -100,6 +77,7 @@ namespace rt {
 
         std::vector<float> tempImage(rt::resolutionX*rt::resolutionY*3);
 
+        // Renders all the pixels in parallel
         #pragma omp parallel for
         for (unsigned int y = 0; y < rt::resolutionY; y++) {
 
@@ -139,9 +117,9 @@ namespace rt {
         }
 
         double luminance = std::exp(atomicLuminance.load() / (rt::resolutionX * rt::resolutionY));
-
         std::cout << "Luminance: " << luminance << "\n";
 
+        // Post process for tone mapping with auto exposure and gamma correction
         #pragma omp parallel for
         for (unsigned int y = 0; y < rt::resolutionY; y++) {
 
@@ -167,4 +145,23 @@ namespace rt {
 
     }
 
+}
+
+glm::vec3 PBRNeutralToneMapping( glm::vec3 color ) {
+  const float startCompression = 0.8 - 0.04;
+  const float desaturation = 0.15;
+
+  float x = std::min(color.r, std::min(color.g, color.b));
+  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
+  color -= offset;
+
+  float peak = std::max(color.r, std::max(color.g, color.b));
+  if (peak < startCompression) return color;
+
+  const float d = 1. - startCompression;
+  float newPeak = 1. - d * d / (peak + d - startCompression);
+  color *= newPeak / peak;
+
+  float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
+  return mix(color, newPeak * glm::vec3(1, 1, 1), g);
 }

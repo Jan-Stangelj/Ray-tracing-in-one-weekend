@@ -8,9 +8,6 @@
 #include <vector>
 
 namespace rt {
-
-    rt::hitInfo traceRay(const rt::ray& r, const rt::scene& scene);
-
     glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed);
 
     void render(std::vector<uint8_t>& resoultImage, const rt::camera& cam, const rt::scene& scene);

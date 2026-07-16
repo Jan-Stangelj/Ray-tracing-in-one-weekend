@@ -1,5 +1,4 @@
 #include "renderer.hpp"
-#include "skybox.hpp"
 
 int main() {
     rt::renderer renderer;

@@ -29,6 +29,7 @@ namespace rt {
             result.d = t;
             result.origin = r.at(t);
             result.normal = glm::normalize(result.origin - m_origin);
+            result.hasHit = true;
             return true;
         }
 
@@ -38,6 +39,7 @@ namespace rt {
             result.d = t;
             result.origin = r.at(t);
             result.normal = glm::normalize(result.origin - m_origin);
+            result.hasHit = true;
             return true;
         }
 
@@ -60,7 +62,6 @@ namespace rt {
     bool scene::hit(const rt::ray& r, rt::hitInfo& resoult) const {
 
         float minDist = std::numeric_limits<float>::infinity();
-        bool hasHit = false;
 
         for (unsigned int i = 0; i < spheres.size(); i++) {
             rt::hitInfo hitTemp;
@@ -68,12 +69,11 @@ namespace rt {
             if (spheres.at(i).hit(r, hitTemp) && hitTemp.d < minDist){
                 resoult = hitTemp;
                 minDist = hitTemp.d;
-                hasHit = true;
                 resoult.sphere = i;
             }
         }
 
-        return hasHit;
+        return resoult.hasHit;
     }
 
 }
