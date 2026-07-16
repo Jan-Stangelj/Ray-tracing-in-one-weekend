@@ -26,7 +26,10 @@ namespace rt {
 
                 const rt::sphere& sphere = scene.spheres.at(hit.sphere);
 
-                glm::vec3 newOrigin = hit.origin + hit.normal * 0.0001f;
+                incomingLight += sphere.getEmission() * rayColur;
+                rayColur *= sphere.getColur();
+
+                glm::vec3 newOrigin = hit.origin + hit.normal * 0.000001f;
 
                 glm::vec3 diffuseDirection = glm::normalize(hit.normal + rt::randomUnitVec3(seed));
                 glm::vec3 specularDirection = glm::reflect(r.direction(), hit.normal);
@@ -44,10 +47,6 @@ namespace rt {
                 }
 
                 r = rt::ray(newOrigin, newDirection);
-
-                incomingLight += sphere.getEmission() * rayColur;
-
-                rayColur *= sphere.getColur();
             }
             else {
                 // Miss shader
