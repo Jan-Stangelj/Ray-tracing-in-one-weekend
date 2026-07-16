@@ -9,13 +9,13 @@ namespace rt {
     enum materialType {
         LAMBERTIAN,
         METAL,
-        LIGHT
+        EMISSIVE
     };
 
     class material {
     public:
 
-        material(rt::materialType type, const glm::vec3& albedo, float smoothnes, const glm::vec3& emissionColur, float emissionStrength);
+        material(rt::materialType type, const glm::vec3& albedo, float roughness, const glm::vec3& emissionColur, float emissionStrength);
         ~material() = default;
 
         bool scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const;
@@ -26,7 +26,7 @@ namespace rt {
         rt::materialType m_type = rt::materialType::LAMBERTIAN;
 
         glm::vec3 m_albedo = glm::vec3(0.0f);
-        float m_smoothnes = 0.0f;
+        float m_roughness = 0.0f;
 
         glm::vec3 m_emissionColur = glm::vec3(0.0f);
         float m_emissionStrength = 0.0f;
@@ -34,6 +34,6 @@ namespace rt {
     };
 
     rt::material createLambertian(const glm::vec3& albedo);
-    rt::material createMetal(const glm::vec3& albedo, float smoothnes);
+    rt::material createMetal(const glm::vec3& albedo, float roughness);
     rt::material createEmissive(const glm::vec3& emissionColur, float emissionStrength);
 }

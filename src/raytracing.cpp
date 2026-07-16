@@ -30,7 +30,8 @@ namespace rt {
                 incomingLight += material.emitted() * rayColur;
 
                 glm::vec3 attenuation(0.0f);
-                material.scatter(r, hit, attenuation, seed);
+                if (!material.scatter(r, hit, attenuation, seed))
+                    break;
 
                 rayColur *= attenuation;
             }
