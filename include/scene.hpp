@@ -6,38 +6,27 @@
 
 #include "ray.hpp"
 #include "skybox.hpp"
+#include "hitinfo.hpp"
+#include "material.hpp"
 
 namespace rt {
-
-    struct hitInfo {
-        glm::vec3 origin = glm::vec3(0.0f);
-        glm::vec3 normal = glm::vec3(0.0f);
-        float d = 0.0f;
-        bool hasHit = false;
-        uint32_t sphere = UINT32_MAX;
-    };
-
     class sphere {
     public:
 
         sphere() = default;
-        sphere(glm::vec3 origin, float radius, glm::vec3 albedo, float smoothnes, glm::vec3 emission);
+        sphere(glm::vec3 origin, float radius, uint32_t material);
         ~sphere() = default;
 
         bool hit(const rt::ray& r, rt::hitInfo& result) const;
 
-        glm::vec3 getColur() const;
-        float getSmoothnes() const;
-        glm::vec3 getEmission() const;
+        uint32_t getMaterial() const;
 
     private:
 
         glm::vec3 m_origin = glm::vec3(0.0f);
         float m_radius = 1.0f;
 
-        glm::vec3 m_albedo = glm::vec3(0.0f);
-        float m_smoothnes = 0.0f;
-        glm::vec3 m_emission = glm::vec3(0.0f);
+        uint32_t m_material;
 
     };
 
@@ -48,6 +37,7 @@ namespace rt {
         ~scene() = default;
 
         std::vector<rt::sphere> spheres = {};
+        std::vector<rt::material> materials = {};
 
         rt::skybox skybox;
 

@@ -1,6 +1,7 @@
 #include "raytracing.hpp"
 
 #include "glm/geometric.hpp"
+#include "material.hpp"
 #include "scene.hpp"
 #include "settings.hpp"
 #include "random.hpp"
@@ -24,29 +25,14 @@ namespace rt {
             if (scene.hit(r, hit)) {
                 // Hit shader
 
-                const rt::sphere& sphere = scene.spheres.at(hit.sphere);
+                const rt::material& material = scene.materials.at(hit.material);
 
-                incomingLight += sphere.getEmission() * rayColur;
-                rayColur *= sphere.getColur();
+                incomingLight += material.emitted() * rayColur;
 
-                glm::vec3 newOrigin = hit.origin + hit.normal * 0.000001f;
+                glm::vec3 attenuation(0.0f);
+                material.scatter(r, hit, attenuation, seed);
 
-                glm::vec3 diffuseDirection = glm::normalize(hit.normal + rt::randomUnitVec3(seed));
-                glm::vec3 specularDirection = glm::reflect(r.direction(), hit.normal);
-                
-                float smoothnes = sphere.getSmoothnes();
-                glm::vec3 newDirection(0.0f);
-
-                if (randomFloat(seed) <= smoothnes) {
-                    newDirection = specularDirection;
-                    rayColur /= smoothnes;
-                }
-                else {
-                    newDirection = diffuseDirection;
-                    rayColur /= 1.0f - smoothnes;
-                }
-
-                r = rt::ray(newOrigin, newDirection);
+                rayColur *= attenuation;
             }
             else {
                 // Miss shader

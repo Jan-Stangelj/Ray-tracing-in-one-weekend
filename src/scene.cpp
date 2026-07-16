@@ -5,11 +5,9 @@
 
 namespace rt {
 
-    sphere::sphere(glm::vec3 origin, float radius, glm::vec3 albedo, float smoothnes, glm::vec3 emission) : m_origin(origin), 
-                                                                                             m_radius(radius), 
-                                                                                             m_albedo(albedo),
-                                                                                             m_smoothnes(smoothnes),
-                                                                                             m_emission(emission) {}
+    sphere::sphere(glm::vec3 origin, float radius, uint32_t material) : m_origin(origin), 
+                                                                        m_radius(radius), 
+                                                                        m_material(material) {}
 
     bool sphere::hit(const rt::ray& r, rt::hitInfo& result) const {
 
@@ -30,6 +28,7 @@ namespace rt {
             result.origin = r.at(t);
             result.normal = glm::normalize(result.origin - m_origin);
             result.hasHit = true;
+            result.material = m_material;
             return true;
         }
 
@@ -40,22 +39,15 @@ namespace rt {
             result.origin = r.at(t);
             result.normal = glm::normalize(result.origin - m_origin);
             result.hasHit = true;
+            result.material = m_material;
             return true;
         }
 
         return false;
     }
 
-    glm::vec3 sphere::getColur() const {
-        return m_albedo;
-    }
-
-    float sphere::getSmoothnes() const {
-        return m_smoothnes;
-    }
-
-    glm::vec3 sphere::getEmission() const {
-        return m_emission;
+    uint32_t sphere::getMaterial() const {
+        return m_material;
     }
 
 
@@ -69,7 +61,6 @@ namespace rt {
             if (spheres.at(i).hit(r, hitTemp) && hitTemp.d < minDist){
                 resoult = hitTemp;
                 minDist = hitTemp.d;
-                resoult.sphere = i;
             }
         }
 

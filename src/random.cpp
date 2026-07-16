@@ -1,4 +1,5 @@
 #include "random.hpp"
+#include "glm/ext/quaternion_geometric.hpp"
 
 namespace rt {
 
@@ -30,5 +31,14 @@ namespace rt {
         float t = 2.0f * std::sqrt(1.0f - s);
 
         return glm::vec3(x1 * t, x2 * t, z);
+    }
+
+    glm::vec3 randomHemisphereVec3(uint32_t& seed, const glm::vec3& normal) {
+        glm::vec3 dir = randomUnitVec3(seed);
+
+        if (glm::dot(normal, dir) <= 0.0f)
+            dir = -dir;
+
+        return dir;
     }
 }
