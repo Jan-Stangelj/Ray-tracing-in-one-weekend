@@ -1,19 +1,23 @@
 #include "material.hpp"
 
+#include "glm/common.hpp"
 #include "glm/geometric.hpp"
 #include "random.hpp"
+#include "settings.hpp"
 
 namespace rt {
     material::material(rt::materialType type,
                        const glm::vec3& albedo, 
                        float roughness, 
                        const glm::vec3& emissionColur, 
-                       float emissionStrength)
+                       float emissionStrength,
+                       float IOR)
                         : m_type(type),
                         m_albedo(albedo),
                         m_roughness(roughness),
                         m_emissionColur(emissionColur),
-                        m_emissionStrength(emissionStrength)
+                        m_emissionStrength(emissionStrength),
+                        m_IOR(IOR)
                         {}
     
     bool material::scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const {
@@ -34,6 +38,25 @@ namespace rt {
         else if (m_type == EMISSIVE) {
             return false;
         }
+        else if (m_type == DIELECTRIC) {
+            attenuation = m_albedo;
+
+            glm::vec3 normal = hit.backface ? -hit.normal : hit.normal;
+            float IOR = hit.backface ? (m_IOR / rt::airIOR) : (rt::airIOR / m_IOR);
+
+            glm::vec3 newOrigin = hit.origin;
+            glm::vec3 newDirection = glm::refract(ray.direction(), normal, IOR);
+            float totalInterReflection = glm::length(newDirection);
+            newDirection += randomUnitVec3(seed) * m_roughness;
+
+            float cosTheta = glm::min(dot(-ray.direction(), normal), 1.0f);
+            if ((totalInterReflection == 0.0f) || (fresnelSchlick(cosTheta, m_IOR) > randomFloat(seed)))
+                newDirection = glm::normalize(glm::reflect(ray.direction(), normal) + randomUnitVec3(seed) * m_roughness);
+
+            ray = rt::ray(newOrigin, newDirection);
+
+            return true;
+        }
         return false;
     }
 
@@ -42,12 +65,21 @@ namespace rt {
     }
 
     rt::material createLambertian(const glm::vec3 &albedo) {
-        return rt::material(rt::materialType::LAMBERTIAN, albedo, 0.0f, glm::vec3(0.0f), 0.0f);
+        return rt::material(rt::materialType::LAMBERTIAN, albedo, 0.0f, glm::vec3(0.0f), 0.0f, 1.0f);
     }
     rt::material createMetal(const glm::vec3 &albedo, float roughness) {
-        return rt::material(rt::materialType::METAL, albedo, roughness, glm::vec3(0.0f), 0.0f);
+        return rt::material(rt::materialType::METAL, albedo, roughness, glm::vec3(0.0f), 0.0f, 1.0f);
     }
     rt::material createEmissive(const glm::vec3 &emissionColur, float emissionStrength) {
-        return rt::material(rt::materialType::EMISSIVE, glm::vec3(0.0f), 0.0f, emissionColur, emissionStrength);
+        return rt::material(rt::materialType::EMISSIVE, glm::vec3(0.0f), 0.0f, emissionColur, emissionStrength, 1.0f);
+    }
+    rt::material createDielectric(const glm::vec3 &albedo, float roughness, float IOR) {
+        return rt::material(rt::materialType::DIELECTRIC, albedo, roughness, glm::vec3(0.0f), 0.0f, IOR);
+    }
+
+    float material::fresnelSchlick(float cosTheta, float IOR) {
+        float r0 = (1 - IOR) / (1 + IOR);
+        r0 = r0*r0;
+        return r0 + (1-r0)*std::pow((1 - cosTheta),5);
     }
 }

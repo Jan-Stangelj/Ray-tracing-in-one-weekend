@@ -9,13 +9,14 @@ namespace rt {
     enum materialType {
         LAMBERTIAN,
         METAL,
-        EMISSIVE
+        EMISSIVE,
+        DIELECTRIC
     };
 
     class material {
     public:
 
-        material(rt::materialType type, const glm::vec3& albedo, float roughness, const glm::vec3& emissionColur, float emissionStrength);
+        material(rt::materialType type, const glm::vec3& albedo, float roughness, const glm::vec3& emissionColur, float emissionStrength, float IOR);
         ~material() = default;
 
         bool scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const;
@@ -31,9 +32,13 @@ namespace rt {
         glm::vec3 m_emissionColur = glm::vec3(0.0f);
         float m_emissionStrength = 0.0f;
 
+        float m_IOR = 1.0f;
+
+        static float fresnelSchlick(float cosTheta, float IOR);
     };
 
     rt::material createLambertian(const glm::vec3& albedo);
     rt::material createMetal(const glm::vec3& albedo, float roughness);
     rt::material createEmissive(const glm::vec3& emissionColur, float emissionStrength);
+    rt::material createDielectric(const glm::vec3& albedo, float roughness, float IOR);
 }

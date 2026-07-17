@@ -28,6 +28,7 @@ namespace rt {
             result.origin = r.at(t);
             result.normal = glm::normalize(result.origin - m_origin);
             result.hasHit = true;
+            result.backface = glm::dot(r.direction(), result.normal) > 0.0f;
             result.material = m_material;
             return true;
         }
@@ -39,6 +40,7 @@ namespace rt {
             result.origin = r.at(t);
             result.normal = glm::normalize(result.origin - m_origin);
             result.hasHit = true;
+            result.backface = glm::dot(r.direction(), result.normal) > 0.0f;
             result.material = m_material;
             return true;
         }

@@ -8,6 +8,7 @@ namespace rt {
         glm::vec3 normal = glm::vec3(0.0f);
         float d = 0.0f;
         bool hasHit = false;
+        bool backface = false;
         uint32_t material = UINT32_MAX;
     };
 }
