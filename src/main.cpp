@@ -16,10 +16,12 @@ int main() {
     renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.2f)));
 
     renderer.scene.spheres.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f), 0.5f, 0);
-    renderer.scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, 1);
+    //renderer.scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, 1);
     renderer.scene.spheres.emplace_back(glm::vec3(-1.0f, 0.0f, 0.0f), 0.5f, 2);
 
     renderer.scene.spheres.emplace_back(glm::vec3(0.0f, -1000.5f, 0.0f), 1000.0f, 3);
+
+    renderer.scene.triangles.emplace_back(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.5f, -0.5f, 0.0f), 1);
 
     renderer.render();
 
