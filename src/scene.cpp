@@ -1,12 +1,15 @@
 #include "scene.hpp"
+#include "glm/geometric.hpp"
 #include "hitinfo.hpp"
+#include <cstddef>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#define TINYOBJLOADER_IMPLEMENTATION
+#include "tinybvh/tiny_bvh.h"
+
 #include "tinyobj/tiny_obj_loader.h"
 
 #include <limits>
@@ -75,17 +78,25 @@ namespace rt {
         const auto& attrib = reader.GetAttrib();
         const auto& shapes = reader.GetShapes();
 
+        size_t totalTriangles = 0;
         for (const auto& shape : shapes) {
-            m_vertices.reserve(shape.mesh.indices.size());
+            totalTriangles += shape.mesh.indices.size();
+        }
 
+        m_vertices.reserve(totalTriangles);
+
+        for (const auto& shape : shapes) {
             for (const auto& idx : shape.mesh.indices) {
                 m_vertices.emplace_back(
                     attrib.vertices[3 * idx.vertex_index + 0],
                     attrib.vertices[3 * idx.vertex_index + 1],
-                    attrib.vertices[3 * idx.vertex_index + 2]
+                    attrib.vertices[3 * idx.vertex_index + 2],
+                    0
                 );
             }
         }
+
+        m_bvh.Build(m_vertices.data(), (uint32_t)floor(m_vertices.size()/3));
     }
 
     void mesh::buildMatrix() {
@@ -107,56 +118,37 @@ namespace rt {
     }
 
     bool mesh::hit(const rt::ray& r, rt::hitInfo& resoult) const {
-        float minDist = std::numeric_limits<float>::infinity();
-
         glm::vec3 localOrigin = glm::vec3(m_inverseModel * glm::vec4(r.origin(), 1.0f));
         glm::vec3 localDirection = glm::vec3(m_inverseModel * glm::vec4(r.direction(), 0.0f));
 
-        rt::ray localRay = rt::ray(localOrigin, localDirection);
+        rt::ray localRay(localOrigin, localDirection);
 
-        for (unsigned int i = 0; i < m_vertices.size(); i += 3) {
-            glm::vec3 p1 = m_vertices[i];
-            glm::vec3 p2 = m_vertices[i+1];
-            glm::vec3 p3 = m_vertices[i+2];
+        tinybvh::bvhvec3 localOriginBVH(localOrigin.x, localOrigin.y, localOrigin.z);
+        tinybvh::bvhvec3 localDirectionBVH(localDirection.x, localDirection.y, localDirection.z);
 
-            constexpr float kEpsilon = 1e-8f;
+        tinybvh::Ray localRayBVH(localOriginBVH, localDirectionBVH);
 
-            glm::vec3 p1p2 = p2 - p1;
-            glm::vec3 p1p3 = p3 - p1;
+        m_bvh.Intersect(localRayBVH);
 
-            glm::vec3 pvec = glm::cross(localRay.direction(), p1p3);
-            float det = glm::dot(p1p2, pvec);
+        resoult.hasHit = false;
 
-            if (glm::abs(det) < kEpsilon)
-                continue;
+        if (localRayBVH.hit.t != 1e30f) {
+            resoult.d = localRayBVH.hit.t / glm::length(localRay.direction());
+            resoult.hasHit = true;
+            resoult.material = m_material;
 
-            float invDet = 1 / det;
+            uint32_t primID = localRayBVH.hit.prim;
+            const tinybvh::bvhvec4& v0 = m_vertices[primID * 3 + 0];
+            const tinybvh::bvhvec4& v1 = m_vertices[primID * 3 + 1];
+            const tinybvh::bvhvec4& v2 = m_vertices[primID * 3 + 2];
 
-            glm::vec3 tvec = localRay.origin() - p1;
-            float u = glm::dot(tvec, pvec) * invDet;
-            if (u < 0 || u > 1)
-                continue;
+            glm::vec3 p1(v0.x, v0.y, v0.z);
+            glm::vec3 p2(v1.x, v1.y, v1.z);
+            glm::vec3 p3(v2.x, v2.y, v2.z);
 
-            glm::vec3 qvec = glm::cross(tvec, p1p2);
-            float v = glm::dot(localRay.direction(), qvec) * invDet;
-            if (v < 0 || u + v > 1)
-                continue;
-
-            float d = glm::dot(p1p3, qvec) * invDet;
-
-            if (d < kEpsilon)
-                continue;
-
-            if (d < minDist) {
-                minDist = d;
-                resoult.d = d;
-                resoult.hasHit = true;
-                resoult.material = m_material;
-                resoult.normal = glm::normalize(m_normalMatrix * glm::cross(p1p2, p1p3));
-                resoult.backface = glm::dot(localRay.direction(), resoult.normal) > 0.0f;
-                resoult.origin = glm::vec3(m_model * glm::vec4(localRay.at(resoult.d), 1.0f));
-            }
-
+            resoult.normal = glm::normalize(m_normalMatrix * glm::cross(glm::normalize(p2 - p1), glm::normalize(p3 - p1)));
+            resoult.backface = glm::dot(localRay.direction(), resoult.normal) > 0.0f;
+            resoult.origin = glm::vec3(m_model * glm::vec4(localRay.at(resoult.d), 1.0f));
         }
 
         return resoult.hasHit;

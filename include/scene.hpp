@@ -1,13 +1,16 @@
 #pragma once
 
-#include <cstdint>
-#include <glm/glm.hpp>
-#include <vector>
-
 #include "ray.hpp"
 #include "skybox.hpp"
 #include "hitinfo.hpp"
 #include "material.hpp"
+
+#include <glm/glm.hpp>
+
+#include "tinybvh/tiny_bvh.h"
+
+#include <cstdint>
+#include <vector>
 
 namespace rt {
     class sphere {
@@ -33,6 +36,14 @@ namespace rt {
 
         mesh() = default;
         mesh(const char* filePath, uint32_t material);
+
+        mesh(const mesh&) = delete;
+        mesh& operator=(const mesh&) = delete;
+
+        // Explicitly movable
+        mesh(mesh&&) noexcept = default;
+        mesh& operator=(mesh&&) noexcept = default;
+
         ~mesh() = default;
 
         void buildMatrix();
@@ -45,7 +56,8 @@ namespace rt {
 
     private:
 
-        std::vector<glm::vec3> m_vertices;
+        std::vector<tinybvh::bvhvec4> m_vertices;
+        tinybvh::BVH m_bvh;
 
         glm::mat4 m_model = glm::mat4(1.0f);
         glm::mat4 m_inverseModel = glm::mat4(1.0f);

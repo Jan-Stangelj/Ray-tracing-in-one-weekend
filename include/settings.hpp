@@ -6,7 +6,7 @@
 namespace rt {
     inline uint32_t minBounces = 2;
     inline uint32_t maxBounces = 16;
-    inline uint32_t samples = 1;
+    inline uint32_t samples = 128;
 
     inline float airIOR = 1.0f;
 

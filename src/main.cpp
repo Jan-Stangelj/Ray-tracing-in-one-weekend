@@ -22,7 +22,7 @@ int main() {
     teapot.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     teapot.position = glm::vec3(0.0f, -0.5f, 0.0f);
     teapot.buildMatrix();
-    renderer.scene.meshes.push_back(teapot);
+    renderer.scene.meshes.push_back(std::move(teapot));
 
     renderer.render();
 
