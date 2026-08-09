@@ -2,6 +2,7 @@
 
 #include "raytracing.hpp"
 
+#include <chrono>
 #include <iostream>
 
 void APIENTRY glDebugOutput(GLenum source, 
@@ -92,8 +93,9 @@ namespace rt {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rt::resolutionX, rt::resolutionY, 0, GL_RGB, GL_UNSIGNED_BYTE, m_resoult.data());
 
         auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> ms = end - start;
-        std::cout << "Rendering took: " << ms.count() << " ms\n";
+        std::chrono::duration<double, std::ratio<1, 1>> ms = end - start;
+        
+        std::cout << "Rendering took: " << ms.count() << " s\n";
     }
 
     void renderer::display() {

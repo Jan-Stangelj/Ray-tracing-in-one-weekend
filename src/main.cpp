@@ -15,13 +15,14 @@ int main() {
     renderer.scene.materials.push_back(rt::createMetal(glm::vec3(0.2f, 0.2f, 0.6f), 0.15f));
     renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.2f)));
 
-    renderer.scene.spheres.emplace_back(glm::vec3(1.0f, 0.0f, 0.0f), 0.5f, 0);
-    //renderer.scene.spheres.emplace_back(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f, 1);
-    renderer.scene.spheres.emplace_back(glm::vec3(-1.0f, 0.0f, 0.0f), 0.5f, 2);
-
     renderer.scene.spheres.emplace_back(glm::vec3(0.0f, -1000.5f, 0.0f), 1000.0f, 3);
 
-    renderer.scene.triangles.emplace_back(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.5f, -0.5f, 0.0f), 1);
+    rt::mesh teapot("../assets/models/utah_teapot.obj", 3);
+    teapot.scale = glm::vec3(0.3f);
+    teapot.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    teapot.position = glm::vec3(0.0f, -0.5f, 0.0f);
+    teapot.buildMatrix();
+    renderer.scene.meshes.push_back(teapot);
 
     renderer.render();
 
