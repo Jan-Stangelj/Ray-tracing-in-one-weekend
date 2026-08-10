@@ -18,10 +18,10 @@ int main() {
     renderer.scene.materials.push_back(rt::createDielectric(glm::vec3(1.0f), 0.0f, 1.5));
 
     {
-        rt::mesh mesh("../assets/models/dragon.obj", 0);
-        mesh.scale = glm::vec3(0.2f);
-        mesh.rotation = glm::vec3(0.0f, 180.0f, 0.0f);
-        mesh.position = glm::vec3(0.0f, -3.5f, 1.0f);
+        rt::mesh mesh("../assets/models/cube.obj", 4);
+        mesh.scale = glm::vec3(1.0f);
+        mesh.rotation = glm::vec3(0.0f, 45.0f, 0.0f);
+        mesh.position = glm::vec3(0.0f, -1.5f + rt::epsilon, 1.0f);
         mesh.buildMatrix();
         renderer.scene.meshes.push_back(std::move(mesh));
     }

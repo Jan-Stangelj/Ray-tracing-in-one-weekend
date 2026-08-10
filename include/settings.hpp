@@ -18,7 +18,7 @@ namespace rt {
     inline float DOFjiggle = 0.0f;
     inline float DOFfocus = 1.0f;
 
-    constexpr uint32_t resolutionX = 480;
-    constexpr uint32_t resolutionY = 360;
+    constexpr uint32_t resolutionX = 960;
+    constexpr uint32_t resolutionY = 720;
     const std::string title = "Ray tracing in one weekend";
 }
