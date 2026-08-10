@@ -17,12 +17,12 @@ int main() {
 
     renderer.scene.spheres.emplace_back(glm::vec3(0.0f, -1000.5f, 0.0f), 1000.0f, 3);
 
-    rt::mesh teapot("../assets/models/utah_teapot.obj", 3);
-    teapot.scale = glm::vec3(0.3f);
-    teapot.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    teapot.position = glm::vec3(0.0f, -0.5f, 0.0f);
-    teapot.buildMatrix();
-    renderer.scene.meshes.push_back(std::move(teapot));
+    rt::mesh dragon("../assets/models/dragon.obj", 0);
+    dragon.scale = glm::vec3(0.1f);
+    dragon.rotation = glm::vec3(0.0f, 180.0f, 0.0f);
+    dragon.position = glm::vec3(0.0f, -1.0f, 0.0f);
+    dragon.buildMatrix();
+    renderer.scene.meshes.push_back(std::move(dragon));
 
     renderer.render();
 

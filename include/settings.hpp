@@ -4,6 +4,8 @@
 #include <string>
 
 namespace rt {
+    constexpr float epsilon = std::numeric_limits<float>::epsilon();
+
     inline uint32_t minBounces = 2;
     inline uint32_t maxBounces = 16;
     inline uint32_t samples = 128;

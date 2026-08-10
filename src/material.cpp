@@ -22,14 +22,14 @@ namespace rt {
     
     bool material::scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const {
         if (m_type == LAMBERTIAN) {
-            glm::vec3 newOrigin = hit.origin + hit.normal * 0.00001f;
+            glm::vec3 newOrigin = hit.origin + hit.normal * rt::epsilon;
             glm::vec3 newDirection = glm::normalize(hit.normal + randomUnitVec3(seed));
             attenuation = m_albedo;
             ray = rt::ray(newOrigin, newDirection);
             return true;
         }
         else if (m_type == METAL) {
-            glm::vec3 newOrigin = hit.origin + hit.normal * 0.00001f;
+            glm::vec3 newOrigin = hit.origin + hit.normal * rt::epsilon;
             glm::vec3 newDirection = glm::normalize(glm::reflect(ray.direction(), hit.normal) + randomUnitVec3(seed) * m_roughness);
             attenuation = m_albedo;
             ray = rt::ray(newOrigin, newDirection);
@@ -44,14 +44,16 @@ namespace rt {
             glm::vec3 normal = hit.backface ? -hit.normal : hit.normal;
             float IOR = hit.backface ? (m_IOR / rt::airIOR) : (rt::airIOR / m_IOR);
 
-            glm::vec3 newOrigin = hit.origin;
+            glm::vec3 newOrigin = hit.origin - normal * rt::epsilon;
             glm::vec3 newDirection = glm::refract(ray.direction(), normal, IOR);
             float totalInterReflection = glm::length(newDirection);
             newDirection += randomUnitVec3(seed) * m_roughness;
 
             float cosTheta = glm::min(dot(-ray.direction(), normal), 1.0f);
-            if ((totalInterReflection == 0.0f) || (fresnelSchlick(cosTheta, m_IOR) > randomFloat(seed)))
+            if ((totalInterReflection == 0.0f) || (fresnelSchlick(cosTheta, m_IOR) > randomFloat(seed))) {
                 newDirection = glm::normalize(glm::reflect(ray.direction(), normal) + randomUnitVec3(seed) * m_roughness);
+                newOrigin += normal * rt::epsilon * 2.0f;
+            }
 
             ray = rt::ray(newOrigin, newDirection);
 

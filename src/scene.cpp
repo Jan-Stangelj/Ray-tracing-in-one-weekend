@@ -147,8 +147,8 @@ namespace rt {
             glm::vec3 p3(v2.x, v2.y, v2.z);
 
             resoult.normal = glm::normalize(m_normalMatrix * glm::cross(glm::normalize(p2 - p1), glm::normalize(p3 - p1)));
-            resoult.backface = glm::dot(localRay.direction(), resoult.normal) > 0.0f;
-            resoult.origin = glm::vec3(m_model * glm::vec4(localRay.at(resoult.d), 1.0f));
+            resoult.backface = glm::dot(r.direction(), resoult.normal) > 0.0f;
+            resoult.origin = r.at(resoult.d);
         }
 
         return resoult.hasHit;
