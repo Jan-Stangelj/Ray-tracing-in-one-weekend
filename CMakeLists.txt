@@ -4,6 +4,7 @@ project("rt" LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED On)
 
+find_package(OpenImageDenoise REQUIRED)
 find_package(OpenMP REQUIRED)
 
 set("GLFW_BUILD_DOCS" OFF CACHE BOOL "" FORCE)
@@ -32,4 +33,4 @@ target_compile_definitions("rt" PUBLIC "GLFW_INCLUDE_NONE=1" "GLM_FORCE_INTRINSI
 target_include_directories("rt" PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories("rt" PRIVATE ${PROJECT_SOURCE_DIR}/vendor/include)
 
-target_link_libraries("rt" PRIVATE glm glfw OpenMP::OpenMP_CXX)
+target_link_libraries("rt" PRIVATE glm glfw OpenMP::OpenMP_CXX OpenImageDenoise)

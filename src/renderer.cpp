@@ -1,7 +1,9 @@
 #include "renderer.hpp"
 
 #include "raytracing.hpp"
+#include "settings.hpp"
 
+#include <OpenImageDenoise/oidn.hpp>
 #include <chrono>
 #include <iostream>
 
@@ -85,10 +87,27 @@ namespace rt {
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        // Prepare denoiser
+        m_device = oidn::newDevice(oidn::DeviceType::CPU);
+        m_device.commit();
+
+        m_filter = m_device.newFilter("RT");
+        m_filter.setImage("color", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_filter.setImage("albedo", m_albedo.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_filter.setImage("normal", m_normal.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_filter.setImage("output", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_filter.set("hdr", true);
+        m_filter.commit();
+
     }
 
     void renderer::denoise() {
-        return;
+        m_filter.execute();
+
+        const char* errorMessage;
+        if (m_device.getError(errorMessage) != oidn::Error::None)
+            std::cout << "OIDN ERROR: " << errorMessage << '\n';
     }
 
     void renderer::postProcess() {
@@ -122,7 +141,7 @@ namespace rt {
         auto start = std::chrono::high_resolution_clock::now();
 
         rt::render(m_beauty, m_albedo, m_normal, camera, scene);
-        denoise();
+        if (rt::denoise) denoise();
         postProcess();
         
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rt::resolutionX, rt::resolutionY, 0, GL_RGB, GL_UNSIGNED_BYTE, m_resoult.data());
