@@ -58,11 +58,6 @@ namespace rt {
     }
 
     void render(std::vector<uint8_t>& resoultImage, const rt::camera& cam, const rt::scene& scene) {
-
-        std::atomic<double> atomicLuminance = 0.0;
-
-        std::vector<float> tempImage(rt::resolutionX*rt::resolutionY*3);
-
         // Renders all the pixels in parallel
         #pragma omp parallel for
         for (unsigned int y = 0; y < rt::resolutionY; y++) {
@@ -91,36 +86,11 @@ namespace rt {
 
                 resoult /= rt::samples;
 
-                atomicLuminance.fetch_add(std::log(1e-4 + (0.2126*resoult.r + 0.7152*resoult.g + 0.0722*resoult.b)));
-
-                uint32_t index = (y * rt::resolutionX + x)*3;
-                tempImage.at(index) = resoult.r;
-                tempImage.at(index+1) = resoult.g;
-                tempImage.at(index+2) = resoult.b;
-                
-            }
-
-        }
-
-        double luminance = std::exp(atomicLuminance.load() / (rt::resolutionX * rt::resolutionY));
-        std::cout << "Luminance: " << luminance << "\n";
-
-        // Post process for tone mapping with auto exposure and gamma correction
-        #pragma omp parallel for
-        for (unsigned int y = 0; y < rt::resolutionY; y++) {
-
-            for (unsigned int x = 0; x < rt::resolutionX; x++) {
-
-                uint32_t index = (y * rt::resolutionX + x)*3;
-
-                glm::vec3 resoult(tempImage.at(index),
-                                  tempImage.at(index+1),
-                                  tempImage.at(index+2));
-
-                resoult = PBRNeutralToneMapping(resoult / glm::vec3(luminance));
+                resoult = PBRNeutralToneMapping(resoult);
 
                 resoult = glm::pow(resoult, glm::vec3(1.0f/2.2f));
 
+                uint32_t index = (y * rt::resolutionX + x)*3;
                 resoultImage.at(index) = resoult.r*255;
                 resoultImage.at(index+1) = resoult.g*255;
                 resoultImage.at(index+2) = resoult.b*255;
