@@ -7,8 +7,8 @@ namespace rt {
     constexpr float epsilon = 0.000001f;//std::numeric_limits<float>::epsilon();
 
     inline uint32_t minBounces = 4;
-    inline uint32_t maxBounces = 16;
-    inline uint32_t samples = 8;
+    inline uint32_t maxBounces = 64;
+    inline uint32_t samples = 16;
 
     inline bool denoise = true;
 

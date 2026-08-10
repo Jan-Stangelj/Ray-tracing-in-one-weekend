@@ -1,3 +1,4 @@
+#include "glm/ext/vector_float3.hpp"
 #include "material.hpp"
 #include "renderer.hpp"
 #include "settings.hpp"
@@ -16,12 +17,31 @@ int main() {
     renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.05, 0.65f, 0.05f)));
     renderer.scene.materials.push_back(rt::createEmissive(glm::vec3(1.0f), 5.0f));
     renderer.scene.materials.push_back(rt::createDielectric(glm::vec3(1.0f), 0.0f, 1.5));
+    renderer.scene.materials.push_back(rt::createMetal(glm::vec3(0.65, 0.05f, 0.05f), 0.0f));
 
     {
-        rt::mesh mesh("../assets/models/cube.obj", 4);
-        mesh.scale = glm::vec3(1.0f);
-        mesh.rotation = glm::vec3(0.0f, 45.0f, 0.0f);
-        mesh.position = glm::vec3(0.0f, -1.5f + rt::epsilon, 1.0f);
+        rt::mesh mesh("../assets/models/cube.obj", 0);
+        mesh.scale = glm::vec3(0.75f, 1.2f, 0.75f);
+        mesh.rotation = glm::vec3(0.0f, -25.0f, 0.0f);
+        mesh.position = glm::vec3(1.0f, -1.6f, 1.5f);
+        mesh.buildMatrix();
+        renderer.scene.meshes.push_back(std::move(mesh));
+    }
+
+    {
+        rt::mesh mesh("../assets/models/utah_teapot.obj", 4);
+        mesh.scale = glm::vec3(0.4f);
+        mesh.rotation = glm::vec3(0.0f, 165.0f, 0.0f);
+        mesh.position = glm::vec3(1.0f, -0.4f, 1.5f);
+        mesh.buildMatrix();
+        renderer.scene.meshes.push_back(std::move(mesh));
+    }
+
+    {
+        rt::mesh mesh("../assets/models/dragon.obj", 5);
+        mesh.scale = glm::vec3(0.12f);
+        mesh.rotation = glm::vec3(0.0f, 195.0f, 0.0f);
+        mesh.position = glm::vec3(-1.2f, -3.1f, 1.5f);
         mesh.buildMatrix();
         renderer.scene.meshes.push_back(std::move(mesh));
     }
