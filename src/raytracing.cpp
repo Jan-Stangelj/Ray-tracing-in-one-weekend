@@ -71,11 +71,12 @@ namespace rt {
                 uint32_t seed = rt::PCGhash(x * 1973u + y * 9277u + 0x68bc21ebu);
 
                 for (unsigned int i = 0; i < rt::samples; i++) {
-                    glm::vec3 rand = randomUnitVec3(seed);
+                    glm::vec3 randAA = randomUnitVec3(seed) * randomFloat(seed);
+                    glm::vec3 randDOF = randomUnitVec3(seed) * randomFloat(seed);
 
-                    glm::vec3 AAJiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::AAjiggle;
+                    glm::vec3 AAJiggle = (cam.getRight() * randAA.x + cam.getUp() * randAA.y) * rt::AAjiggle;
 
-                    glm::vec3 DOFjiggle = (cam.getRight() * rand.x + cam.getUp() * rand.y) * rt::DOFjiggle;
+                    glm::vec3 DOFjiggle = (cam.getRight() * randDOF.x + cam.getUp() * randDOF.y) * rt::DOFjiggle;
                     glm::vec3 DOForigin = ray.origin() + DOFjiggle;
                     glm::vec3 DOFdirection = glm::normalize(ray.at(rt::DOFfocus) - DOForigin);
 
