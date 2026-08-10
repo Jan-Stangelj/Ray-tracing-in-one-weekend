@@ -8,8 +8,8 @@
 #include <vector>
 
 namespace rt {
-    glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed);
+    void perSample(glm::vec3& beauty, glm::vec3& albedo, glm::vec3& normal, rt::ray r, const rt::scene& scene, uint32_t& seed);
 
-    void render(std::vector<uint8_t>& resoultImage, const rt::camera& cam, const rt::scene& scene);
+    void render(std::vector<float>& beautyImage, std::vector<float>& albedoImage, std::vector<float>& normalImage, const rt::camera& cam, const rt::scene& scene);
 
 }

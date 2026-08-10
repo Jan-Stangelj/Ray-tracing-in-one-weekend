@@ -28,10 +28,16 @@ namespace rt {
         GLFWwindow* window = nullptr;
 
     private:
+    
+        void denoise();
+        void postProcess();
 
         GLuint m_VBO, m_VAO, m_texture;
         rt::shader m_shader;
 
+        std::vector<float> m_beauty = std::vector<float>(rt::resolutionX * rt::resolutionY * 3);
+        std::vector<float> m_normal = std::vector<float>(rt::resolutionX * rt::resolutionY * 3);
+        std::vector<float> m_albedo = std::vector<float>(rt::resolutionX * rt::resolutionY * 3);
         std::vector<uint8_t> m_resoult = std::vector<uint8_t>(rt::resolutionX * rt::resolutionY * 3);
     };
 }

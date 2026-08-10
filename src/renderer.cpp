@@ -5,6 +5,8 @@
 #include <chrono>
 #include <iostream>
 
+glm::vec3 PBRNeutralToneMapping( glm::vec3 color );
+
 void APIENTRY glDebugOutput(GLenum source, 
                             GLenum type, 
                             unsigned int id, 
@@ -85,10 +87,43 @@ namespace rt {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
+    void renderer::denoise() {
+        return;
+    }
+
+    void renderer::postProcess() {
+        #pragma omp parallel for
+        for (unsigned int y = 0; y < rt::resolutionY; y++) {
+
+            for (unsigned int x = 0; x < rt::resolutionX; x++) {
+
+                uint32_t index = (y * rt::resolutionX + x) * 3;
+
+                std::vector<float>& input = m_beauty;
+
+                glm::vec3 color(
+                    input.at(index),
+                    input.at(index + 1),
+                    input.at(index + 2)
+                );
+
+                color = PBRNeutralToneMapping(color);
+
+                color = glm::pow(color, glm::vec3(1.0f / 2.2f));
+
+                m_resoult.at(index)     = static_cast<uint8_t>(color.r * 255.0f);
+                m_resoult.at(index + 1) = static_cast<uint8_t>(color.g * 255.0f);
+                m_resoult.at(index + 2) = static_cast<uint8_t>(color.b * 255.0f);
+            }
+        }
+    }
+
     void renderer::render() {
         auto start = std::chrono::high_resolution_clock::now();
 
-        rt::render(m_resoult, camera, scene);
+        rt::render(m_beauty, m_albedo, m_normal, camera, scene);
+        denoise();
+        postProcess();
         
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rt::resolutionX, rt::resolutionY, 0, GL_RGB, GL_UNSIGNED_BYTE, m_resoult.data());
 
@@ -115,6 +150,25 @@ namespace rt {
     void renderer::terminate() {
         glfwTerminate();
     }
+}
+
+glm::vec3 PBRNeutralToneMapping( glm::vec3 color ) {
+  const float startCompression = 0.8 - 0.04;
+  const float desaturation = 0.15;
+
+  float x = std::min(color.r, std::min(color.g, color.b));
+  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
+  color -= offset;
+
+  float peak = std::max(color.r, std::max(color.g, color.b));
+  if (peak < startCompression) return color;
+
+  const float d = 1. - startCompression;
+  float newPeak = 1. - d * d / (peak + d - startCompression);
+  color *= newPeak / peak;
+
+  float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
+  return mix(color, newPeak * glm::vec3(1, 1, 1), g);
 }
 
 void APIENTRY glDebugOutput(GLenum source, 

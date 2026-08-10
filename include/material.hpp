@@ -21,6 +21,7 @@ namespace rt {
 
         bool scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const;
         glm::vec3 emitted() const;
+        glm::vec3 albedo() const;
 
     private:
 

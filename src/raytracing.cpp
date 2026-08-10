@@ -7,14 +7,10 @@
 #include "random.hpp"
 
 #include <algorithm>
-#include <atomic>
-#include <iostream>
-
-glm::vec3 PBRNeutralToneMapping( glm::vec3 color );
 
 namespace rt {
 
-    glm::vec3 perSample(rt::ray r, const rt::scene& scene, uint32_t& seed) {
+    void perSample(glm::vec3& beauty, glm::vec3& albedo, glm::vec3& normal, rt::ray r, const rt::scene& scene, uint32_t& seed) {
 
         glm::vec3 incomingLight(0.0f);
         glm::vec3 rayColur(1.0f);
@@ -26,6 +22,11 @@ namespace rt {
                 // Hit shader
 
                 const rt::material& material = scene.materials.at(hit.material);
+
+                if (i == 0) {
+                    albedo += material.albedo();
+                    normal += hit.normal;    
+                }
 
                 incomingLight += material.emitted() * rayColur;
 
@@ -54,10 +55,10 @@ namespace rt {
             }
         }
 
-        return incomingLight;
+        beauty += incomingLight;
     }
 
-    void render(std::vector<uint8_t>& resoultImage, const rt::camera& cam, const rt::scene& scene) {
+    void render(std::vector<float>& beautyImage, std::vector<float>& albedoImage, std::vector<float>& normalImage, const rt::camera& cam, const rt::scene& scene) {
         // Renders all the pixels in parallel
         #pragma omp parallel for
         for (unsigned int y = 0; y < rt::resolutionY; y++) {
@@ -66,7 +67,9 @@ namespace rt {
 
                 rt::ray ray = cam.genRay(x, y);
 
-                glm::vec3 resoult(0.0f);
+                glm::vec3 beauty(0.0f);
+                glm::vec3 albedo(0.0f);
+                glm::vec3 normal(0.0f);
 
                 uint32_t seed = rt::PCGhash(x * 1973u + y * 9277u + 0x68bc21ebu);
 
@@ -82,19 +85,26 @@ namespace rt {
 
                     rt::ray r(DOForigin + AAJiggle, DOFdirection);
 
-                    resoult += perSample(r, scene, seed);
+                    perSample(beauty, albedo, normal, r, scene, seed);
                 }
 
-                resoult /= rt::samples;
-
-                resoult = PBRNeutralToneMapping(resoult);
-
-                resoult = glm::pow(resoult, glm::vec3(1.0f/2.2f));
+                beauty /= rt::samples;
+                albedo /= rt::samples;
+                normal /= rt::samples;
 
                 uint32_t index = (y * rt::resolutionX + x)*3;
-                resoultImage.at(index) = resoult.r*255;
-                resoultImage.at(index+1) = resoult.g*255;
-                resoultImage.at(index+2) = resoult.b*255;
+
+                beautyImage.at(index) = beauty.r;
+                beautyImage.at(index+1) = beauty.g;
+                beautyImage.at(index+2) = beauty.b;
+
+                albedoImage.at(index) = albedo.r;
+                albedoImage.at(index+1) = albedo.g;
+                albedoImage.at(index+2) = albedo.b;
+
+                normalImage.at(index) = normal.r;
+                normalImage.at(index+1) = normal.g;
+                normalImage.at(index+2) = normal.b;
                 
             }
 
@@ -102,23 +112,4 @@ namespace rt {
 
     }
 
-}
-
-glm::vec3 PBRNeutralToneMapping( glm::vec3 color ) {
-  const float startCompression = 0.8 - 0.04;
-  const float desaturation = 0.15;
-
-  float x = std::min(color.r, std::min(color.g, color.b));
-  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
-  color -= offset;
-
-  float peak = std::max(color.r, std::max(color.g, color.b));
-  if (peak < startCompression) return color;
-
-  const float d = 1. - startCompression;
-  float newPeak = 1. - d * d / (peak + d - startCompression);
-  color *= newPeak / peak;
-
-  float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
-  return mix(color, newPeak * glm::vec3(1, 1, 1), g);
 }

@@ -66,6 +66,10 @@ namespace rt {
         return m_emissionColur * m_emissionStrength;
     }
 
+    glm::vec3 material::albedo() const {
+        return m_albedo;
+    }
+
     rt::material createLambertian(const glm::vec3 &albedo) {
         return rt::material(rt::materialType::LAMBERTIAN, albedo, 0.0f, glm::vec3(0.0f), 0.0f, 1.0f);
     }
