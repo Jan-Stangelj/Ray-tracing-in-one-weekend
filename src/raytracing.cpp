@@ -68,7 +68,7 @@ namespace rt {
 
                 glm::vec3 resoult(0.0f);
 
-                uint32_t seed = rt::PCGhash(x * y + x + y);
+                uint32_t seed = rt::PCGhash(x * 1973u + y * 9277u + 0x68bc21ebu);
 
                 for (unsigned int i = 0; i < rt::samples; i++) {
                     glm::vec3 rand = randomUnitVec3(seed);
