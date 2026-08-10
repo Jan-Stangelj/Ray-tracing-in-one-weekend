@@ -98,6 +98,7 @@ namespace rt {
         m_filter.setImage("normal", m_normal.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
         m_filter.setImage("output", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
         m_filter.set("hdr", true);
+        m_filter.set("cleanAux", false); // The albedo texture has some noise
         m_filter.commit();
 
     }

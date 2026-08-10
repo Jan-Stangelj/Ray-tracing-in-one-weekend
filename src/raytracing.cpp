@@ -7,6 +7,7 @@
 #include "random.hpp"
 
 #include <algorithm>
+#include <optional>
 
 namespace rt {
 
@@ -14,6 +15,8 @@ namespace rt {
 
         glm::vec3 incomingLight(0.0f);
         glm::vec3 rayColur(1.0f);
+
+        bool foundAlbedo = false;
 
         for (unsigned int i = 0; i < rt::maxBounces; i++) {
             rt::hitInfo hit;
@@ -23,9 +26,15 @@ namespace rt {
 
                 const rt::material& material = scene.materials.at(hit.material);
 
-                if (i == 0) {
-                    albedo += material.albedo();
-                    normal += hit.normal;    
+                // First surface sets normal
+                if (i == 0) normal += hit.normal;
+
+                // First non translucent surface sets albedo
+                if (!foundAlbedo) {
+                    if (auto materialAlbedo = material.albedo()) {
+                        albedo += *materialAlbedo;
+                        foundAlbedo = true;
+                    }
                 }
 
                 incomingLight += material.emitted() * rayColur;

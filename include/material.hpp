@@ -4,6 +4,7 @@
 #include "hitinfo.hpp"
 
 #include <glm/glm.hpp>
+#include <optional>
 
 namespace rt {
     enum materialType {
@@ -21,7 +22,7 @@ namespace rt {
 
         bool scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const;
         glm::vec3 emitted() const;
-        glm::vec3 albedo() const;
+        std::optional<glm::vec3> albedo() const;
 
     private:
 

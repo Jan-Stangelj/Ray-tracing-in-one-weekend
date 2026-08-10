@@ -4,6 +4,7 @@
 #include "glm/geometric.hpp"
 #include "random.hpp"
 #include "settings.hpp"
+#include <optional>
 
 namespace rt {
     material::material(rt::materialType type,
@@ -66,7 +67,8 @@ namespace rt {
         return m_emissionColur * m_emissionStrength;
     }
 
-    glm::vec3 material::albedo() const {
+    std::optional<glm::vec3> material::albedo() const {
+        if (m_type == rt::materialType::DIELECTRIC) return std::nullopt;
         return m_albedo;
     }
 
