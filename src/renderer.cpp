@@ -92,19 +92,29 @@ namespace rt {
         m_device = oidn::newDevice(oidn::DeviceType::CPU);
         m_device.commit();
 
-        m_filter = m_device.newFilter("RT");
-        m_filter.setImage("color", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
-        m_filter.setImage("albedo", m_albedo.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
-        m_filter.setImage("normal", m_normal.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
-        m_filter.setImage("output", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
-        m_filter.set("hdr", true);
-        m_filter.set("cleanAux", false); // The albedo texture has some noise
-        m_filter.commit();
+        m_beautyFilter = m_device.newFilter("RT");
+        m_beautyFilter.setImage("color", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_beautyFilter.setImage("albedo", m_albedo.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_beautyFilter.setImage("normal", m_normal.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_beautyFilter.setImage("output", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+        m_beautyFilter.set("hdr", true);
+        m_beautyFilter.set("cleanAux", rt::prefilterAlbedo); // The albedo texture has some noise, BUT it is prefiltered
+        m_beautyFilter.commit();
 
+        if (rt::prefilterAlbedo) {
+            m_albedoFilter = m_device.newFilter("RT");
+            m_albedoFilter.setImage("albedo", m_albedo.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+            m_albedoFilter.setImage("output", m_albedo.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+            m_albedoFilter.commit();
+        }
     }
 
     void renderer::denoise() {
-        m_filter.execute();
+
+        if (rt::prefilterAlbedo) 
+            m_albedoFilter.execute();
+
+        m_beautyFilter.execute();
 
         const char* errorMessage;
         if (m_device.getError(errorMessage) != oidn::Error::None)

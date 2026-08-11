@@ -38,7 +38,8 @@ namespace rt {
         rt::shader m_shader;
 
         oidn::DeviceRef m_device;
-        oidn::FilterRef m_filter;
+        oidn::FilterRef m_albedoFilter;
+        oidn::FilterRef m_beautyFilter;
 
         std::vector<float> m_beauty = std::vector<float>(rt::resolutionX * rt::resolutionY * 3);
         std::vector<float> m_albedo = std::vector<float>(rt::resolutionX * rt::resolutionY * 3);

@@ -11,6 +11,7 @@ namespace rt {
     inline uint32_t samples = 8;
 
     inline bool denoise = true;
+    inline bool prefilterAlbedo  = true;
 
     inline float airIOR = 1.0f;
 
