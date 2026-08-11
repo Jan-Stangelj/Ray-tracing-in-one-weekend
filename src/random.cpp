@@ -33,6 +33,18 @@ namespace rt {
         return glm::vec3(x1 * t, x2 * t, z);
     }
 
+    glm::vec2 randomVec2InUnitDisk(uint32_t& seed) {
+        float x, y, s;
+
+        do {
+            x = 2.0f * randomFloat(seed) - 1.0f;
+            y = 2.0f * randomFloat(seed) - 1.0f;
+            s = x * x + y * y;
+        } while (s >= 1.0f);
+
+        return glm::vec2(x, y);
+    }
+
     glm::vec3 randomHemisphereVec3(uint32_t& seed, const glm::vec3& normal) {
         glm::vec3 dir = randomUnitVec3(seed);
 

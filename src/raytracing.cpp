@@ -83,8 +83,8 @@ namespace rt {
                 uint32_t seed = rt::PCGhash(x * 1973u + y * 9277u + 0x68bc21ebu);
 
                 for (unsigned int i = 0; i < rt::samples; i++) {
-                    glm::vec3 randAA = randomUnitVec3(seed) * randomFloat(seed);
-                    glm::vec3 randDOF = randomUnitVec3(seed) * randomFloat(seed);
+                    glm::vec2 randAA(randomFloat(seed), randomFloat(seed));
+                    glm::vec2 randDOF = randomVec2InUnitDisk(seed);
 
                     glm::vec3 AAJiggle = (cam.getRight() * randAA.x + cam.getUp() * randAA.y) * rt::AAjiggle;
 

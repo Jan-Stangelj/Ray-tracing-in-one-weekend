@@ -11,4 +11,5 @@ namespace rt {
     glm::vec3 randomVec3(uint32_t& seed, float min, float max);
     glm::vec3 randomUnitVec3(uint32_t& seed);
     glm::vec3 randomHemisphereVec3(uint32_t& seed, const glm::vec3& normal);
+    glm::vec2 randomVec2InUnitDisk(uint32_t& seed);
 }
