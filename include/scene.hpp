@@ -13,30 +13,13 @@
 #include <vector>
 
 namespace rt {
-    class sphere {
-    public:
-
-        sphere() = default;
-        sphere(glm::vec3 origin, float radius, uint32_t material);
-        ~sphere() = default;
-
-        bool hit(const rt::ray& r, rt::hitInfo& result) const;
-
-    private:
-
-        glm::vec3 m_origin = glm::vec3(0.0f);
-        float m_radius = 1.0f;
-
-        uint32_t m_material = UINT32_MAX;
-
-    };
-
     class mesh {
     public:
 
         mesh() = default;
         mesh(const char* filePath, uint32_t material);
 
+        // Cannot be copied
         mesh(const mesh&) = delete;
         mesh& operator=(const mesh&) = delete;
 
@@ -74,7 +57,6 @@ namespace rt {
         ~scene() = default;
 
         std::vector<rt::mesh> meshes = {};
-        std::vector<rt::sphere> spheres = {};
 
         std::vector<rt::material> materials = {};
 

@@ -1,6 +1,5 @@
 # Blender 5.2.0 LTS
 # www.blender.org
-mtllib quad.mtl
 o Plane
 v -1.000000 0.000000 1.000000
 v 1.000000 0.000000 1.000000
