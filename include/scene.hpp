@@ -17,7 +17,7 @@ namespace rt {
     public:
 
         mesh() = default;
-        mesh(const char* filePath, uint32_t material);
+        mesh(const char* filePath);
 
         // Cannot be copied
         mesh(const mesh&) = delete;
@@ -29,9 +29,35 @@ namespace rt {
 
         ~mesh() = default;
 
-        void buildMatrix();
+        bool hit(const rt::ray& r, 
+                 rt::hitInfo& resoult,
+                 const glm::mat4& inverseModelMatrix, 
+                 const glm::mat3& normalMatrix) const;
 
-        bool hit(const rt::ray& r, rt::hitInfo& resoult) const;
+    private:
+
+        std::vector<tinybvh::bvhvec4> m_vertices;
+        tinybvh::BVH m_bvh;
+
+    };
+
+    class meshInstance {
+    public:
+
+        meshInstance() = default;
+        meshInstance(uint32_t mesh, 
+                     uint32_t material, 
+                     const glm::vec3& position = glm::vec3(0.0f), 
+                     const glm::vec3& rotation = glm::vec3(0.0f), 
+                     const glm::vec3& scale = glm::vec3(1.0f));
+
+        ~meshInstance() = default;
+
+        bool hit(const rt::ray& r, 
+                 rt::hitInfo& resoult, 
+                 const std::vector<rt::mesh>& meshes) const;
+
+        void buildMatrix();
 
         glm::vec3 position = glm::vec3(0.0f);
         glm::vec3 rotation = glm::vec3(0.0f);
@@ -39,13 +65,10 @@ namespace rt {
 
     private:
 
-        std::vector<tinybvh::bvhvec4> m_vertices;
-        tinybvh::BVH m_bvh;
-
-        glm::mat4 m_model = glm::mat4(1.0f);
-        glm::mat4 m_inverseModel = glm::mat4(1.0f);
+        glm::mat4 m_inverseModelMatrix = glm::mat4(1.0f);
         glm::mat3 m_normalMatrix = glm::mat3(1.0f);
 
+        uint32_t m_mesh = UINT32_MAX;
         uint32_t m_material = UINT32_MAX;
 
     };
@@ -56,8 +79,9 @@ namespace rt {
         scene() = default;
         ~scene() = default;
 
-        std::vector<rt::mesh> meshes = {};
+        std::vector<rt::meshInstance> meshInstances = {};
 
+        std::vector<rt::mesh> meshes = {};
         std::vector<rt::material> materials = {};
 
         rt::skybox skybox;
