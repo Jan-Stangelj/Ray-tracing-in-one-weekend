@@ -98,13 +98,16 @@ namespace rt {
         m_beautyFilter.setImage("normal", m_normal.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
         m_beautyFilter.setImage("output", m_beauty.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
         m_beautyFilter.set("hdr", true);
-        m_beautyFilter.set("cleanAux", rt::prefilterAlbedo); // The albedo texture has some noise, BUT it is prefiltered
+        m_beautyFilter.set("quality", OIDN_QUALITY_HIGH);
+        m_beautyFilter.set("cleanAux", rt::prefilterAlbedo); // The albedo texture has some noise, if not prefiltered
         m_beautyFilter.commit();
 
         if (rt::prefilterAlbedo) {
             m_albedoFilter = m_device.newFilter("RT");
             m_albedoFilter.setImage("albedo", m_albedo.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
             m_albedoFilter.setImage("output", m_albedo.data(), oidn::Format::Float3, rt::resolutionX, rt::resolutionY);
+            m_albedoFilter.set("hdr", false);
+            m_albedoFilter.set("quality", OIDN_QUALITY_HIGH);
             m_albedoFilter.commit();
         }
     }
