@@ -27,7 +27,7 @@ namespace rt {
                 const rt::material& material = scene.materials.at(hit.material);
 
                 // First surface sets normal
-                if (i == 0) normal += hit.normal;
+                if (i == 0) normal += hit.normal.value();
 
                 // First non translucent surface sets albedo
                 if (!foundAlbedo) {

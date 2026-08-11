@@ -77,7 +77,6 @@ namespace rt {
         if (localRayBVH.hit.t != 1e30f) {
             resoult.d = localRayBVH.hit.t / glm::length(localRay.direction());
             resoult.hasHit = true;
-            // resoult.material = m_material; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! REMEMBER TO ADD TO MODEL INSTANCE
 
             uint32_t primID = localRayBVH.hit.prim;
             const tinybvh::bvhvec4& v0 = m_vertices[primID * 3 + 0];
@@ -89,7 +88,7 @@ namespace rt {
             glm::vec3 p3(v2.x, v2.y, v2.z);
 
             resoult.normal = glm::normalize(normalMatrix * glm::cross(glm::normalize(p2 - p1), glm::normalize(p3 - p1)));
-            resoult.backface = glm::dot(r.direction(), resoult.normal) > 0.0f;
+            resoult.backface = glm::dot(r.direction(), resoult.normal.value()) > 0.0f;
             resoult.origin = r.at(resoult.d);
         }
 

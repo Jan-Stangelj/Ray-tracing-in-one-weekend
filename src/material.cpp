@@ -25,15 +25,15 @@ namespace rt {
     
     bool material::scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const {
         if (m_type == LAMBERTIAN) {
-            glm::vec3 newOrigin = hit.origin + hit.normal * rt::epsilon;
-            glm::vec3 newDirection = glm::normalize(hit.normal + randomUnitVec3(seed));
+            glm::vec3 newOrigin = hit.origin + hit.normal.value() * rt::epsilon;
+            glm::vec3 newDirection = glm::normalize(hit.normal.value() + randomUnitVec3(seed));
             attenuation = m_albedo;
             ray = rt::ray(newOrigin, newDirection);
             return true;
         }
         else if (m_type == METAL) {
-            glm::vec3 newOrigin = hit.origin + hit.normal * rt::epsilon;
-            glm::vec3 newDirection = glm::normalize(glm::reflect(ray.direction(), hit.normal) + randomUnitVec3(seed) * m_roughness);
+            glm::vec3 newOrigin = hit.origin + hit.normal.value() * rt::epsilon;
+            glm::vec3 newDirection = glm::normalize(glm::reflect(ray.direction(), hit.normal.value()) + randomUnitVec3(seed) * m_roughness);
             attenuation = m_albedo;
             ray = rt::ray(newOrigin, newDirection);
             return true;
@@ -44,7 +44,7 @@ namespace rt {
         else if (m_type == DIELECTRIC) {
             attenuation = m_albedo;
 
-            glm::vec3 normal = hit.backface ? -hit.normal : hit.normal;
+            glm::vec3 normal = hit.backface ? -hit.normal.value() : hit.normal.value();
             float IOR = hit.backface ? (m_IOR / rt::airIOR) : (rt::airIOR / m_IOR);
 
             glm::vec3 newOrigin = hit.origin - normal * rt::epsilon;
@@ -65,7 +65,7 @@ namespace rt {
         else if (m_type == CLEARCOAT) {
             attenuation = m_albedo;
 
-            glm::vec3 normal = hit.backface ? -hit.normal : hit.normal;
+            glm::vec3 normal = hit.backface ? -hit.normal.value() : hit.normal.value();
             float IOR = hit.backface ? (m_IOR / rt::airIOR) : (rt::airIOR / m_IOR);
 
             glm::vec3 newOrigin = hit.origin + normal * rt::epsilon;
