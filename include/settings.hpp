@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include <string_view>
 
 namespace rt {
     constexpr float epsilon = 1e-4f;
@@ -23,5 +23,5 @@ namespace rt {
 
     constexpr uint32_t resolutionX = 960;
     constexpr uint32_t resolutionY = 720;
-    const std::string title = "Ray tracing in one weekend";
+    constexpr std::string_view title = "Ray tracing in one weekend";
 }

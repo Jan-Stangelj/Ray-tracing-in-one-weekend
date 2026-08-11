@@ -13,12 +13,13 @@ int main() {
     //renderer.scene.skybox = rt::skybox("../assets/skyboxes/skybox1.hdr");
 
     // Materials
-    renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.73f)));
-    renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.65, 0.05f, 0.05f)));
-    renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.05, 0.65f, 0.05f)));
-    renderer.scene.materials.push_back(rt::createEmissive(glm::vec3(1.0f), 5.0f));
-    renderer.scene.materials.push_back(rt::createDielectric(glm::vec3(1.0f), 0.0f, 1.5));
-    renderer.scene.materials.push_back(rt::createMetal(glm::vec3(0.65, 0.05f, 0.05f), 0.0f));
+    renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.73f)));//0
+    renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.65, 0.05f, 0.05f)));//1
+    renderer.scene.materials.push_back(rt::createLambertian(glm::vec3(0.05, 0.65f, 0.05f)));//2
+    renderer.scene.materials.push_back(rt::createEmissive(glm::vec3(1.0f), 5.0f));//3
+    renderer.scene.materials.push_back(rt::createDielectric(glm::vec3(1.0f), 0.0f, 1.5));//4
+    renderer.scene.materials.push_back(rt::createClearCoat(glm::vec3(0.65, 0.05f, 0.05f), glm::vec3(1.0f), 0.0f, 1.4f));//5
+    renderer.scene.materials.push_back(rt::createMetal(glm::vec3(0.65, 0.05f, 0.05f), 0.0f));//6
 
     // Meshes
     renderer.scene.meshes.emplace_back("../assets/models/quad.obj");
@@ -83,7 +84,7 @@ int main() {
         3,
         glm::vec3(0.0f, size - rt::epsilon, 0.0f),
         glm::vec3(180.0f, 0.0f, 0.0f),
-        glm::vec3(size / 3.0f)
+        glm::vec3(size / 2.0f)
     );
 
     // Front wall

@@ -8,13 +8,15 @@
 
 namespace rt {
     material::material(rt::materialType type,
-                       const glm::vec3& albedo, 
+                       const glm::vec3& albedo,
+                       const glm::vec3& coatAlbedo,
                        float roughness, 
                        const glm::vec3& emissionColur, 
                        float emissionStrength,
                        float IOR)
                         : m_type(type),
                         m_albedo(albedo),
+                        m_coatAlbedo(coatAlbedo),
                         m_roughness(roughness),
                         m_emissionColur(emissionColur),
                         m_emissionStrength(emissionStrength),
@@ -60,6 +62,27 @@ namespace rt {
 
             return true;
         }
+        else if (m_type == CLEARCOAT) {
+            attenuation = m_albedo;
+
+            glm::vec3 normal = hit.backface ? -hit.normal : hit.normal;
+            float IOR = hit.backface ? (m_IOR / rt::airIOR) : (rt::airIOR / m_IOR);
+
+            glm::vec3 newOrigin = hit.origin + normal * rt::epsilon;
+            glm::vec3 newDirection = normal + randomUnitVec3(seed);
+            float totalInterReflection = glm::length(newDirection);
+            newDirection += randomUnitVec3(seed) * m_roughness;
+
+            float cosTheta = glm::min(dot(-ray.direction(), normal), 1.0f);
+            if ((totalInterReflection == 0.0f) || (fresnelSchlick(cosTheta, m_IOR) > randomFloat(seed))) {
+                newDirection = glm::normalize(glm::reflect(ray.direction(), normal) + randomUnitVec3(seed) * m_roughness);
+                attenuation = m_coatAlbedo;
+            }
+
+            ray = rt::ray(newOrigin, newDirection);
+
+            return true;
+        }
         return false;
     }
 
@@ -73,17 +96,21 @@ namespace rt {
     }
 
     rt::material createLambertian(const glm::vec3 &albedo) {
-        return rt::material(rt::materialType::LAMBERTIAN, albedo, 0.0f, glm::vec3(0.0f), 0.0f, 1.0f);
+        return rt::material(rt::materialType::LAMBERTIAN, albedo, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, 1.0f);
     }
     rt::material createMetal(const glm::vec3 &albedo, float roughness) {
-        return rt::material(rt::materialType::METAL, albedo, roughness, glm::vec3(0.0f), 0.0f, 1.0f);
+        return rt::material(rt::materialType::METAL, albedo, glm::vec3(0.0f), roughness, glm::vec3(0.0f), 0.0f, 1.0f);
     }
     rt::material createEmissive(const glm::vec3 &emissionColur, float emissionStrength) {
-        return rt::material(rt::materialType::EMISSIVE, glm::vec3(0.0f), 0.0f, emissionColur, emissionStrength, 1.0f);
+        return rt::material(rt::materialType::EMISSIVE, glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, emissionColur, emissionStrength, 1.0f);
     }
     rt::material createDielectric(const glm::vec3 &albedo, float roughness, float IOR) {
-        return rt::material(rt::materialType::DIELECTRIC, albedo, roughness, glm::vec3(0.0f), 0.0f, IOR);
+        return rt::material(rt::materialType::DIELECTRIC, albedo, glm::vec3(0.0f), roughness, glm::vec3(0.0f), 0.0f, IOR);
     }
+    rt::material createClearCoat(const glm::vec3& albedo, const glm::vec3& coatAlbedo, float roughness, float IOR) {
+        return rt::material(rt::materialType::CLEARCOAT, albedo, coatAlbedo, roughness, glm::vec3(0.0f), 0.0f, IOR);
+    }
+    
 
     float material::fresnelSchlick(float cosTheta, float IOR) {
         float r0 = (1 - IOR) / (1 + IOR);

@@ -27,7 +27,7 @@ namespace rt {
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
         // Create window and OpenGL context
-        window = glfwCreateWindow(rt::resolutionX, rt::resolutionY, rt::title.c_str(), NULL, NULL);
+        window = glfwCreateWindow(rt::resolutionX, rt::resolutionY, rt::title.cbegin(), NULL, NULL);
         if (window == NULL){
             std::cerr << "Failed to create GLFW window\n";
             glfwTerminate();
