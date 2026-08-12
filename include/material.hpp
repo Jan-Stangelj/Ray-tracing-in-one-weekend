@@ -18,7 +18,14 @@ namespace rt {
     class material {
     public:
 
-        material(rt::materialType type, const glm::vec3& albedo, const glm::vec3& coatAlbedo, float roughness, const glm::vec3& emissionColur, float emissionStrength, float IOR);
+        material(rt::materialType type, 
+                 const glm::vec3& albedo, 
+                 const glm::vec3& coatAlbedo, 
+                 float roughness, 
+                 const glm::vec3& emissionColur, 
+                 float emissionStrength, 
+                 float IOR);
+
         ~material() = default;
 
         bool scatter(rt::ray& ray, const rt::hitInfo& hit, glm::vec3& attenuation, uint32_t& seed) const;
