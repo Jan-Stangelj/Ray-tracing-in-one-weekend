@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string_view>
+#include <string>
 
 namespace rt {
     constexpr float epsilon = 1e-4f;
@@ -24,4 +24,6 @@ namespace rt {
     constexpr uint32_t resolutionX = 960;
     constexpr uint32_t resolutionY = 720;
     constexpr std::string_view title = "Ray tracing in one weekend";
+
+    inline std::string exportLocation = "output.png";
 }

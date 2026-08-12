@@ -1,4 +1,3 @@
-#include "glm/ext/matrix_float4x4.hpp"
 #include <glm/glm.hpp>
 
 #define GLAD_GL_IMPLEMENTATION
@@ -12,3 +11,6 @@
 
 #define TINYBVH_IMPLEMENTATION
 #include "tinybvh/tiny_bvh.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"

@@ -22,6 +22,7 @@ namespace rt {
         void render();
         void displayUI();
         void display();
+        void exportRender();
 
         void terminate();
 

@@ -1,7 +1,6 @@
 #include "renderer.hpp"
 
 #include "glm/common.hpp"
-#include "imgui_internal.h"
 #include "raytracing.hpp"
 #include "settings.hpp"
 
@@ -10,12 +9,14 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "misc/cpp/imgui_stdlib.h"
+
+#include "stb/stb_image_write.h"
 
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <iostream>
-#include <string>
 
 glm::vec3 PBRNeutralToneMapping( glm::vec3 color );
 
@@ -225,14 +226,17 @@ namespace rt {
         rt::DOFfocus = std::max(rt::DOFfocus, 0.0f);
 
         ImGui::Separator();
-
         if (ImGui::Button("Render"))
             render();
 
         ImGui::Text("Rendering took %.2fs", m_renderingTime.count());
 
         ImGui::Separator();
+        ImGui::InputText("Export as", &rt::exportLocation);
+        if (ImGui::Button("Export"))
+            exportRender();
 
+        ImGui::Separator();
         ImGui::Text(
             "Resolution: %u x %u",
             rt::resolutionX,
@@ -259,6 +263,17 @@ namespace rt {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+    }
+
+    void renderer::exportRender() {
+        stbi_write_png(
+            rt::exportLocation.c_str(),
+            rt::resolutionX,
+            rt::resolutionY,
+            3,                         // RGB
+            m_resoult.data(),
+            rt::resolutionX * 3       // bytes per row
+        );
     }
 
     void renderer::terminate() {
