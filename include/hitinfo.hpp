@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <optional>
+#include <string>
 
 namespace rt {
     struct hitInfo {
@@ -10,6 +10,6 @@ namespace rt {
         float d = 0.0f;
         bool hasHit = false;
         bool backface = false;
-        uint32_t material = UINT32_MAX;
+        std::string material = "";
     };
 }

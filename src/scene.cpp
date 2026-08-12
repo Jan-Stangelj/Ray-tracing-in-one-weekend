@@ -95,25 +95,31 @@ namespace rt {
         return resoult.hasHit;
     }
 
-    meshInstance::meshInstance(uint32_t mesh, 
-                               uint32_t material, 
-                               const glm::vec3& position, 
-                               const glm::vec3& rotation, 
-                               const glm::vec3& scale)
-                               : position(position),
-                                 rotation(rotation),
-                                 scale(scale),
-                                 m_mesh(mesh),
-                                 m_material(material) {
-            
+    meshInstance::meshInstance(const std::string& mesh,
+                           const std::string& material,
+                           const glm::vec3& position,
+                           const glm::vec3& rotation,
+                           const glm::vec3& scale)
+                            : position(position),
+                            rotation(rotation),
+                            scale(scale),
+                            m_mesh(mesh),
+                            m_material(material) {
         buildMatrix();
     }
 
-    bool meshInstance::hit(const rt::ray& r, rt::hitInfo& resoult, const std::vector<rt::mesh>& meshes) const {
-        if (meshes.at(m_mesh).hit(r, resoult, m_inverseModelMatrix, m_normalMatrix)) {
-            resoult.material = m_material;
+    bool meshInstance::hit(const rt::ray& r, rt::hitInfo& result, const std::map<std::string, rt::mesh>& meshes) const {
+
+        auto it = meshes.find(m_mesh);
+
+        if (it == meshes.end())
+            return false;
+
+        if (it->second.hit(r, result, m_inverseModelMatrix, m_normalMatrix)) {
+            result.material = m_material;
             return true;
         }
+
         return false;
     }
 
@@ -133,20 +139,22 @@ namespace rt {
         m_normalMatrix = glm::transpose(glm::mat3(m_inverseModelMatrix));
     }
 
-    bool scene::hit(const rt::ray& r, rt::hitInfo& resoult) const {
+    bool scene::hit(const rt::ray& r, rt::hitInfo& result) const {
 
         float minDist = std::numeric_limits<float>::infinity();
 
-        for (unsigned int i = 0; i < meshInstances.size(); i++) {
+        for (const auto& [name, instance] : meshInstances) {
             rt::hitInfo hitTemp;
 
-            if (meshInstances.at(i).hit(r, hitTemp, meshes) && hitTemp.d < minDist) {
-                resoult = hitTemp;
+            if (instance.hit(r, hitTemp, meshes) &&
+                hitTemp.d < minDist) {
+
+                result = hitTemp;
                 minDist = hitTemp.d;
             }
         }
 
-        return resoult.hasHit;
+        return result.hasHit;
     }
 
 }

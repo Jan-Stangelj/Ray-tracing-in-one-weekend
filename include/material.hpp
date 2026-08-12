@@ -18,6 +18,7 @@ namespace rt {
     class material {
     public:
 
+        material() = default;
         material(rt::materialType type, 
                  const glm::vec3& albedo, 
                  const glm::vec3& coatAlbedo, 
