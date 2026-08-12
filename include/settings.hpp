@@ -25,5 +25,6 @@ namespace rt {
     constexpr uint32_t resolutionY = 720;
     constexpr std::string_view title = "Ray tracing in one weekend";
 
-    inline std::string exportLocation = "output.png";
+    inline std::string exportPath = "/home/jan/Pictures/";
+    inline std::string exportFilename = "output.png";
 }

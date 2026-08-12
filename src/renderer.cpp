@@ -232,7 +232,8 @@ namespace rt {
         ImGui::Text("Rendering took %.2fs", m_renderingTime.count());
 
         ImGui::Separator();
-        ImGui::InputText("Export as", &rt::exportLocation);
+        ImGui::InputText("Export path", &rt::exportPath);
+        ImGui::InputText("Export filename", &rt::exportFilename);
         if (ImGui::Button("Export"))
             exportRender();
 
@@ -266,14 +267,19 @@ namespace rt {
     }
 
     void renderer::exportRender() {
-        stbi_write_png(
-            rt::exportLocation.c_str(),
-            rt::resolutionX,
-            rt::resolutionY,
-            3,                         // RGB
-            m_resoult.data(),
-            rt::resolutionX * 3       // bytes per row
-        );
+        std::string path = rt::exportPath + rt::exportFilename;
+
+        if (!stbi_write_png(
+                path.c_str(),
+                rt::resolutionX,
+                rt::resolutionY,
+                3,
+                m_resoult.data(),
+                rt::resolutionX * 3))
+        {
+            std::cerr << "Failed to export PNG: " << path << '\n';
+            return;
+        }
     }
 
     void renderer::terminate() {
