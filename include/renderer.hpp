@@ -20,6 +20,7 @@ namespace rt {
         void init();
 
         void render();
+        void displayUI();
         void display();
 
         void terminate();
@@ -33,6 +34,8 @@ namespace rt {
     
         void denoise();
         void postProcess();
+
+        std::chrono::duration<double, std::ratio<1, 1>> m_renderingTime;
 
         GLuint m_VBO, m_VAO, m_texture;
         rt::shader m_shader;

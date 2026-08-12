@@ -13,10 +13,10 @@ namespace rt {
     inline bool denoise = true;
     constexpr bool prefilterAlbedo  = true;
 
-    inline float airIOR = 1.0f;
+    constexpr float airIOR = 1.0f;
 
     inline float fovY = 80.0f;
-    inline float AAjiggle = epsilon;
+    constexpr float AAjiggle = epsilon;
 
     inline float DOFjiggle = 0.0f;
     inline float DOFfocus = 4.0f;

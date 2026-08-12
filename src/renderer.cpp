@@ -1,11 +1,21 @@
 #include "renderer.hpp"
 
+#include "glm/common.hpp"
+#include "imgui_internal.h"
 #include "raytracing.hpp"
 #include "settings.hpp"
 
 #include <OpenImageDenoise/oidn.hpp>
+
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <iostream>
+#include <string>
 
 glm::vec3 PBRNeutralToneMapping( glm::vec3 color );
 
@@ -35,11 +45,25 @@ namespace rt {
         }
         glfwMakeContextCurrent(window);
 
-        // Initialize GLAD
-        if (!gladLoadGL(glfwGetProcAddress)){
-            std::cerr << "Failed to initialize GLAD\n";
-            return;
-        }
+        glfwMakeContextCurrent(window);
+
+    // Initialize GLAD
+    if (!gladLoadGL(glfwGetProcAddress)){
+        std::cerr << "Failed to initialize GLAD\n";
+        return;
+    }
+
+    // Initialize ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 430");
 
         glfwSwapInterval(1);
         glViewport(0, 0, rt::resolutionX, rt::resolutionY);
@@ -161,9 +185,64 @@ namespace rt {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rt::resolutionX, rt::resolutionY, 0, GL_RGB, GL_UNSIGNED_BYTE, m_resoult.data());
 
         auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::ratio<1, 1>> ms = end - start;
-        
-        std::cout << "Rendering took: " << ms.count() << " s\n";
+        m_renderingTime = end - start;
+    }
+
+    void renderer::displayUI() {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Settings");
+
+        ImGui::InputScalar("Minimum bounces", ImGuiDataType_U32, &rt::minBounces);
+        rt::minBounces = std::max(rt::minBounces, 1u);
+
+        ImGui::InputScalar("Maximum bounces", ImGuiDataType_U32, &rt::maxBounces);
+        rt::maxBounces = std::max(rt::maxBounces, 1u);
+
+        ImGui::InputScalar("Samples", ImGuiDataType_U32, &rt::samples);
+        rt::samples = std::max(rt::samples, 1u);
+
+        ImGui::Separator();
+
+        ImGui::Checkbox("Denoise?", &rt::denoise);
+
+        ImGui::Separator();
+
+        ImGui::SliderFloat(
+            "Vertical FOV",
+            &rt::fovY,
+            30.0f,
+            89.0f,
+            "%.0f"
+        );
+
+        ImGui::InputFloat("Depth of field jiggle", &rt::DOFjiggle);
+        rt::DOFjiggle = std::max(rt::DOFjiggle, 0.0f);
+
+        ImGui::InputFloat("Focus", &rt::DOFfocus);
+        rt::DOFfocus = std::max(rt::DOFfocus, 0.0f);
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Render"))
+            render();
+
+        ImGui::Text("Rendering took %.2fs", m_renderingTime.count());
+
+        ImGui::Separator();
+
+        ImGui::Text(
+            "Resolution: %u x %u",
+            rt::resolutionX,
+            rt::resolutionY
+        );
+
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     void renderer::display() {
@@ -175,6 +254,8 @@ namespace rt {
         m_shader.setInt("texture1", 0);
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        displayUI();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

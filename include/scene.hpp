@@ -63,13 +63,13 @@ namespace rt {
         glm::vec3 rotation = glm::vec3(0.0f);
         glm::vec3 scale = glm::vec3(1.0f);
 
+        uint32_t m_mesh = UINT32_MAX;
+        uint32_t m_material = UINT32_MAX;
+
     private:
 
         glm::mat4 m_inverseModelMatrix = glm::mat4(1.0f);
         glm::mat3 m_normalMatrix = glm::mat3(1.0f);
-
-        uint32_t m_mesh = UINT32_MAX;
-        uint32_t m_material = UINT32_MAX;
 
     };
 

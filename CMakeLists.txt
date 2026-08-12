@@ -15,6 +15,7 @@ set("BUILD_SHARED_LIBS" OFF CACHE BOOL "" FORCE)
 
 add_subdirectory("vendor/glm")
 add_subdirectory("vendor/glfw")
+add_subdirectory("vendor/imgui")
 
 file(GLOB_RECURSE "SOURCES" CONFIGURE_DEPENDS "src/*.cpp")
 add_executable("rt" "${SOURCES}")
@@ -33,4 +34,4 @@ target_compile_definitions("rt" PUBLIC "GLFW_INCLUDE_NONE=1" "GLM_FORCE_INTRINSI
 target_include_directories("rt" PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories("rt" PRIVATE ${PROJECT_SOURCE_DIR}/vendor/include)
 
-target_link_libraries("rt" PRIVATE glm glfw OpenMP::OpenMP_CXX OpenImageDenoise)
+target_link_libraries("rt" PRIVATE glm glfw OpenMP::OpenMP_CXX OpenImageDenoise imgui)
