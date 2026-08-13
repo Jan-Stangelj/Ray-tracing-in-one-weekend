@@ -179,6 +179,9 @@ namespace rt {
     void renderer::render() {
         auto start = std::chrono::high_resolution_clock::now();
 
+        for (auto& [name, instance] : scene.meshInstances)
+            instance.buildMatrix();
+
         rt::render(m_beauty, m_albedo, m_normal, camera, scene);
         if (rt::denoise) denoise();
         postProcess();
@@ -187,67 +190,6 @@ namespace rt {
 
         auto end = std::chrono::high_resolution_clock::now();
         m_renderingTime = end - start;
-    }
-
-    void renderer::displayUI() {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        ImGui::Begin("Settings");
-
-        ImGui::InputScalar("Minimum bounces", ImGuiDataType_U32, &rt::minBounces);
-        rt::minBounces = std::max(rt::minBounces, 1u);
-
-        ImGui::InputScalar("Maximum bounces", ImGuiDataType_U32, &rt::maxBounces);
-        rt::maxBounces = std::max(rt::maxBounces, 1u);
-
-        ImGui::InputScalar("Samples", ImGuiDataType_U32, &rt::samples);
-        rt::samples = std::max(rt::samples, 1u);
-
-        ImGui::Separator();
-
-        ImGui::Checkbox("Denoise?", &rt::denoise);
-
-        ImGui::Separator();
-
-        ImGui::SliderFloat(
-            "Vertical FOV",
-            &rt::fovY,
-            30.0f,
-            89.0f,
-            "%.0f"
-        );
-
-        ImGui::InputFloat("Depth of field jiggle", &rt::DOFjiggle);
-        rt::DOFjiggle = std::max(rt::DOFjiggle, 0.0f);
-
-        ImGui::InputFloat("Focus", &rt::DOFfocus);
-        rt::DOFfocus = std::max(rt::DOFfocus, 0.0f);
-
-        ImGui::Separator();
-        if (ImGui::Button("Render"))
-            render();
-
-        ImGui::Text("Rendering took %.2fs", m_renderingTime.count());
-
-        ImGui::Separator();
-        ImGui::InputText("Export path", &rt::exportPath);
-        ImGui::InputText("Export filename", &rt::exportFilename);
-        if (ImGui::Button("Export"))
-            exportRender();
-
-        ImGui::Separator();
-        ImGui::Text(
-            "Resolution: %u x %u",
-            rt::resolutionX,
-            rt::resolutionY
-        );
-
-        ImGui::End();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     void renderer::display() {
