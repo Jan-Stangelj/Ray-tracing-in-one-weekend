@@ -21,8 +21,8 @@ namespace rt {
     inline float DOFjiggle = 0.0f;
     inline float DOFfocus = 4.0f;
 
-    constexpr uint32_t resolutionX = 960;
-    constexpr uint32_t resolutionY = 720;
+    constexpr uint32_t resolutionX = 1920;
+    constexpr uint32_t resolutionY = 1200;
     constexpr std::string_view title = "Ray tracing in one weekend";
 
     inline std::string exportPath = "/home/jan/Pictures/";
